@@ -1,0 +1,9 @@
+{
+  "name": "saas-marketing-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Evidence-first research workspace for B2B SaaS marketing.",
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}
