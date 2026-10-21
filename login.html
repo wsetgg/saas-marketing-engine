@@ -8,10 +8,102 @@
 <p class="fine">By continuing, you agree to use Growthdesk responsibly. This early version is in testing; no real payment is taken until checkout is configured for live mode.</p><a class="back" href="index.html">← Back to Growthdesk</a></main>
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-const statusEl=document.querySelector("#status"),form=document.querySelector("#login-form"),send=document.querySelector("#send"),pay=document.querySelector("#pay");
+const statusEl=document.querySelector("#status");
+const form=document.querySelector("#login-form");
+const send=document.querySelector("#send");
+const pay=document.querySelector("#pay");
 let supabase;
-try{const r=await fetch("/api/config");const c=await r.json();if(!r.ok)throw new Error(c.error||"Account setup is not ready yet.");supabase=createClient(c.supabaseUrl,c.supabaseAnonKey);const {data:{session}}=await supabase.auth.getSession();if(session)await handleSession(session);}catch(e){statusEl.textContent=e.message||"Account setup is not ready yet.";}
-form.addEventListener("submit",async e=>{e.preventDefault();if(!supabase){statusEl.textContent="Account setup is not ready yet.";return;}send.disabled=true;statusEl.textContent="Sending your secure sign-in link…";try{const email=document.querySelector("#email").value.trim();const {error}=await supabase.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+"/dashboard.html"}});if(error)throw error;statusEl.textContent="Check your inbox for the sign-in link. You can return to this page after clicking it."; }catch(e){statusEl.textContent=e.message||"Could not send the sign-in link.";}finally{send.disabled=false;}});
-async function handleSession(session){document.querySelector("#email").value=session.user.email||"";form.style.display="none";statusEl.textContent="Signed in as "+(session.user.email||"your account")+". Checking access…";try{const r=await fetch("/api/me",{headers:{Authorization:"Bearer "+session.access_token}});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not check access.");if(d.hasAccess){location.href="dashboard.html";return;}pay.style.display="block";document.querySelector("#pay-copy").textContent="Your account is ready. Start a subscription to unlock your saved marketing workspace. The payment flow will use test mode until you switch it to live mode.";statusEl.textContent="You are signed in, but this account does not have an active subscription yet.";}catch(e){statusEl.textContent=e.message||"Could not check subscription status.";}}
-document.querySelector("#subscribe").addEventListener("click",async()=>{const {data:{session}}=await supabase.auth.getSession();if(!session){statusEl.textContent="Please sign in again.";return;}const b=document.querySelector("#subscribe");b.disabled=true;statusEl.textContent="Opening secure checkout…";try{const r=await fetch("/api/stripe-checkout",{method:"POST",headers:{Authorization:"Bearer "+session.access_token}});const d=await r.json();if(!r.ok)throw new Error(d.error||"Checkout is not ready yet.");location.href=d.url;}catch(e){statusEl.textContent=e.message||"Could not start checkout.";b.disabled=false;}});
+
+try {
+  const configResponse = await fetch("/api/config", { cache: "no-store" });
+  const config = await configResponse.json();
+  if (!configResponse.ok) throw new Error(config.error || "Account setup is not ready yet.");
+  supabase = createClient(config.supabaseUrl, config.supabaseAnonKey, {
+    auth: { flowType: "pkce", detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
+  });
+
+  // Explicitly exchange Supabase's PKCE callback code before looking for a session.
+  const callbackUrl = new URL(window.location.href);
+  const authCode = callbackUrl.searchParams.get("code");
+  if (authCode) {
+    const { error } = await supabase.auth.exchangeCodeForSession(authCode);
+    if (error) throw new Error("This sign-in link could not be verified. Please request a new link.");
+    callbackUrl.searchParams.delete("code");
+    window.history.replaceState({}, document.title, callbackUrl.pathname + callbackUrl.search + callbackUrl.hash);
+  }
+
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  if (data.session) await handleSession(data.session);
+
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_IN" && session) void handleSession(session);
+  });
+} catch (error) {
+  statusEl.textContent = error.message || "Account setup is not ready yet.";
+}
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!supabase) { statusEl.textContent = "Account setup is not ready yet."; return; }
+  send.disabled = true;
+  statusEl.textContent = "Sending your secure sign-in link…";
+  try {
+    const email = document.querySelector("#email").value.trim();
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: location.origin + "/login.html" }
+    });
+    if (error) throw error;
+    statusEl.textContent = "Check your inbox for the newest sign-in link. Open it in this same browser.";
+  } catch (error) {
+    statusEl.textContent = error.message || "Could not send the sign-in link.";
+  } finally {
+    send.disabled = false;
+  }
+});
+
+async function handleSession(session) {
+  if (!session || !supabase) return;
+  document.querySelector("#email").value = session.user.email || "";
+  form.style.display = "none";
+  statusEl.textContent = "Signed in. Checking your workspace access…";
+  try {
+    const response = await fetch("/api/me", {
+      headers: { Authorization: "Bearer " + session.access_token },
+      cache: "no-store"
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Could not check account access.");
+    if (data.hasAccess) {
+      location.replace("/dashboard.html");
+      return;
+    }
+    pay.style.display = "block";
+    document.querySelector("#pay-copy").textContent = "Your account is signed in, but paid access is not active for this email yet.";
+    statusEl.textContent = "Signed in, but access isn't enabled for this account. Check DEV_ACCESS_EMAILS in Vercel.";
+  } catch (error) {
+    statusEl.textContent = error.message || "Could not check account access.";
+  }
+}
+
+document.querySelector("#subscribe").addEventListener("click", async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) { statusEl.textContent = "Your session expired. Please sign in again."; return; }
+  const button = document.querySelector("#subscribe");
+  button.disabled = true;
+  statusEl.textContent = "Opening secure checkout…";
+  try {
+    const response = await fetch("/api/stripe-checkout", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + session.access_token }
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Checkout is not ready yet.");
+    location.href = data.url;
+  } catch (error) {
+    statusEl.textContent = error.message || "Could not start checkout.";
+    button.disabled = false;
+  }
+});
 </script></body></html>
