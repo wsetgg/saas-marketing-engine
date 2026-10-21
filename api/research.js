@@ -1,4 +1,4 @@
-const MODEL = "claude-haiku-4-5-20251001";
+const MODEL = "claude-haiku-5-5";
 const MAX_BODY_CHARS = 16000;
 
 function clean(value, maxLength) {
@@ -83,7 +83,6 @@ ${input}`;
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 1800,
-        temperature: 0.2,
         system,
         messages: [{ role: "user", content: prompt }]
       }),
