@@ -3,87 +3,298 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Evidence-first research workspace for B2B SaaS marketing.">
-  <title>SaaS Marketing Research Studio</title>
+  <meta name="description" content="A calmer way for small SaaS teams to plan marketing, create content, and keep growth work moving.">
+  <meta name="theme-color" content="#f7f7f2">
+  <title>Growthdesk — Make marketing move</title>
   <style>
-    :root{color-scheme:light;--ink:#17252d;--muted:#61717a;--line:#dce5e8;--paper:#f5f8f8;--card:#fff;--accent:#087f8c;--accent-dark:#06616b}
-    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    .shell{max-width:1000px;margin:0 auto;padding:36px 20px 64px}.eyebrow{font-size:.78rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
-    h1{font-size:clamp(2rem,5vw,3.25rem);line-height:1.08;letter-spacing:-.04em;margin:.55rem 0 1rem;max-width:760px}
-    .intro{max-width:720px;color:var(--muted);font-size:1.08rem}.notice{margin:22px 0;padding:13px 15px;border:1px solid #c7e4e5;background:#edfafa;border-radius:12px;color:#27545a;font-size:.92rem}
-    .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:24px}.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 4px 20px #142b3510}
-    h2{font-size:1.15rem;margin:0 0 4px} .sub{color:var(--muted);font-size:.9rem;margin:0 0 18px}
-    label{display:block;font-weight:650;font-size:.9rem;margin:16px 0 6px}input,textarea{width:100%;border:1px solid #cbd7db;border-radius:9px;padding:11px 12px;font:inherit;color:var(--ink);background:#fff}textarea{min-height:92px;resize:vertical}input:focus,textarea:focus{outline:3px solid #087f8c25;border-color:var(--accent)}
-    .hint{color:var(--muted);font-size:.8rem;margin:5px 0 0}.button{border:0;border-radius:10px;padding:12px 16px;background:var(--accent);color:#fff;font:inherit;font-weight:750;cursor:pointer;margin-top:18px}.button:hover{background:var(--accent-dark)}.button:disabled{opacity:.55;cursor:wait}
-    .status{font-size:.9rem;color:var(--muted);margin:12px 0 0;min-height:1.4em}.result{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.94rem}.result:empty:before{content:"Your research brief will appear here.";color:#89979d}
-    .result a{color:var(--accent)}.empty{padding:18px;background:#f7f9fa;border:1px dashed var(--line);border-radius:10px;color:var(--muted)}
-    footer{color:var(--muted);font-size:.82rem;margin-top:24px}
-    @media(max-width:760px){.layout{grid-template-columns:1fr}.shell{padding:26px 14px 44px}.panel{padding:18px}}
+    :root{
+      color-scheme:light;
+      --paper:#f7f7f2;--white:#fff;--ink:#17241e;--muted:#65716a;
+      --line:#e1e5dc;--green:#315d43;--green-dark:#244832;--lime:#d6ed9b;
+      --soft:#edf1e8;--shadow:0 24px 70px rgba(28,44,32,.10);
+      --serif:Georgia,"Times New Roman",serif;
+      --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:88px}
+    body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    button,a{-webkit-tap-highlight-color:transparent}
+    .wrap{width:min(1160px,calc(100% - 48px));margin-inline:auto}
+    .nav{height:78px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(225,229,220,.9)}
+    .brand{display:inline-flex;align-items:center;gap:10px;font-weight:760;letter-spacing:-.045em;font-size:1.23rem}
+    .brand-mark{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--green);color:#fff;font-size:17px;line-height:1}
+    .nav-links{display:flex;align-items:center;gap:30px;color:#4e5b52;font-size:.9rem}
+    .nav-links a:hover,.text-link:hover{color:var(--green)}
+    .nav-cta,.button{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:999px;background:var(--green);color:#fff;font-size:.9rem;font-weight:650;padding:12px 19px;border:1px solid var(--green);transition:background .18s,transform .18s}
+    .nav-cta:hover,.button:hover{background:var(--green-dark);transform:translateY(-1px)}
+    .button.secondary{background:transparent;color:var(--ink);border-color:#cfd6ca}
+    .button.secondary:hover{background:#fff}
+    .hero{padding:86px 0 78px;display:grid;grid-template-columns:1.02fr .98fr;gap:64px;align-items:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.76rem;font-weight:750;letter-spacing:.13em;text-transform:uppercase;color:var(--green)}
+    .eyebrow-dot{width:7px;height:7px;background:#7b9c53;border-radius:50%}
+    h1,h2,h3,p{margin-top:0}
+    h1{font:400 clamp(3.2rem,6vw,5.5rem)/.99 var(--serif);letter-spacing:-.065em;max-width:650px;margin:23px 0 23px}
+    h1 em{font-weight:400;color:var(--green)}
+    .hero-copy{max-width:540px;font-size:1.1rem;color:var(--muted);line-height:1.75;margin-bottom:29px}
+    .actions{display:flex;gap:12px;flex-wrap:wrap}
+    .microcopy{font-size:.8rem;color:var(--muted);margin:15px 0 0}
+    .hero-art{position:relative;min-width:0}
+    .app-window{position:relative;background:#fff;border:1px solid #e0e5dc;border-radius:18px;overflow:hidden;box-shadow:var(--shadow);transform:rotate(1deg)}
+    .app-top{height:51px;display:flex;align-items:center;justify-content:space-between;padding:0 17px;border-bottom:1px solid #edf0e9;background:#fff}
+    .app-brand{display:flex;align-items:center;gap:8px;font-size:.78rem;font-weight:750}
+    .mini-mark{width:19px;height:19px;background:var(--green);border-radius:6px;color:#fff;display:grid;place-items:center;font-size:11px}
+    .top-right{font-size:.7rem;color:#718075}
+    .app-body{display:grid;grid-template-columns:128px 1fr;min-height:390px}
+    .sidebar{background:#f8f9f5;border-right:1px solid #edf0e9;padding:18px 10px}
+    .side-label{font-size:.59rem;text-transform:uppercase;letter-spacing:.1em;color:#899389;padding:0 8px;margin:0 0 9px}
+    .side-item{display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:7px;font-size:.68rem;color:#667168;margin-bottom:3px}
+    .side-item.active{background:#e7eee2;color:#2d5338;font-weight:700}
+    .side-icon{width:14px;text-align:center;font-size:.8rem}
+    .dash{padding:22px 20px 20px;min-width:0}
+    .dash-overline{font-size:.65rem;color:#7a857a;margin-bottom:5px}
+    .dash-title{font-size:1.22rem;font-weight:720;letter-spacing:-.045em;margin:0 0 4px}
+    .dash-desc{font-size:.68rem;color:#7b857c;margin-bottom:19px}
+    .week-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+    .week-head strong{font-size:.7rem}
+    .week-head span{font-size:.62rem;color:#7c877c}
+    .task{display:grid;grid-template-columns:27px 1fr auto;align-items:start;gap:9px;padding:11px 0;border-bottom:1px solid #edf0e9}
+    .check{width:18px;height:18px;border:1px solid #cbd6c7;border-radius:6px;display:grid;place-items:center;color:var(--green);font-size:.7rem;background:#fbfcf9}
+    .task strong{font-size:.68rem;display:block;line-height:1.4;font-weight:690}
+    .task small{display:block;font-size:.59rem;color:#849084;margin-top:3px}
+    .pill{font-size:.56rem;border-radius:999px;padding:4px 7px;background:#eef1e9;color:#596c53;white-space:nowrap}
+    .pill.green{background:#e1efcf;color:#3d672e}
+    .bottom-cards{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}
+    .mini-card{border:1px solid #e7ebe3;border-radius:9px;padding:11px}
+    .mini-card span{font-size:.6rem;color:#7a8579;display:block}
+    .mini-card strong{font-size:.84rem;display:block;margin-top:3px}
+    .mini-bar{height:4px;background:#e9ede5;border-radius:99px;margin-top:9px;overflow:hidden}
+    .mini-bar i{display:block;height:100%;width:68%;background:#7d9e62;border-radius:99px}
+    .float-note{position:absolute;right:-23px;bottom:30px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 16px;box-shadow:0 12px 35px #17241e16;font-size:.72rem;max-width:190px;transform:rotate(-2deg)}
+    .float-note strong{display:block;margin-bottom:3px;font-size:.76rem}
+    .float-note span{color:var(--muted)}
+    .trust-line{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:23px 0;display:flex;justify-content:center;gap:38px;flex-wrap:wrap;color:#657168;font-size:.82rem}
+    .trust-line span{display:inline-flex;align-items:center;gap:9px}
+    .trust-line b{font-size:1rem;color:var(--green);font-weight:500}
+    section.content{padding:104px 0}
+    .section-head{max-width:690px;margin:0 auto 48px;text-align:center}
+    .section-head h2{font:400 clamp(2.3rem,4.5vw,3.7rem)/1.08 var(--serif);letter-spacing:-.05em;margin:15px 0}
+    .section-head p{color:var(--muted);font-size:1rem;line-height:1.75;margin:0 auto;max-width:560px}
+    .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .feature{padding:27px 25px 28px;background:rgba(255,255,255,.68);border:1px solid var(--line);border-radius:15px;min-height:225px}
+    .feature-icon{width:42px;height:42px;display:grid;place-items:center;background:var(--soft);border-radius:12px;color:var(--green);font-size:1.15rem;margin-bottom:23px}
+    .feature h3{font-size:1.04rem;letter-spacing:-.025em;margin-bottom:9px}
+    .feature p{font-size:.9rem;color:var(--muted);line-height:1.7;margin:0}
+    .planner-section{background:#edf1e8;border-top:1px solid #e1e7da;border-bottom:1px solid #e1e7da}
+    .planner-layout{display:grid;grid-template-columns:.78fr 1.22fr;gap:70px;align-items:center}
+    .planner-copy h2{font:400 clamp(2.4rem,4vw,3.8rem)/1.06 var(--serif);letter-spacing:-.055em;margin:17px 0}
+    .planner-copy>p{color:var(--muted);line-height:1.8}
+    .check-list{padding:0;margin:25px 0 0;list-style:none;display:grid;gap:13px}
+    .check-list li{display:flex;gap:10px;font-size:.91rem;align-items:flex-start}
+    .check-list li:before{content:"✓";color:var(--green);font-weight:800}
+    .calendar{background:#fff;border:1px solid #dfe5db;border-radius:15px;padding:21px;box-shadow:0 18px 50px #1e39230b}
+    .calendar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .calendar-head strong{font-size:.93rem}
+    .calendar-head span{font-size:.73rem;color:var(--muted)}
+    .calendar-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+    .day{min-width:0}
+    .day-name{text-align:center;font-size:.64rem;color:#7b867a;margin-bottom:8px}
+    .day-date{text-align:center;font-size:.78rem;font-weight:700;margin-bottom:10px}
+    .event{border-radius:7px;padding:9px 7px;margin-bottom:7px;min-height:72px;font-size:.64rem;line-height:1.4;background:#e8eee3;color:#38523b;overflow-wrap:anywhere}
+    .event.sand{background:#f4eadb;color:#745c3d}
+    .event.blue{background:#e5edf0;color:#425e68}
+    .event small{display:block;font-size:.57rem;opacity:.75;margin-bottom:5px}
+    .event.blank{background:#f8f9f6;border:1px dashed #e0e5dc;color:#9ba39a;display:grid;place-items:center;min-height:56px}
+    .quote-band{padding:70px 0;text-align:center}
+    .quote-band blockquote{max-width:780px;margin:0 auto;font:400 clamp(1.7rem,3.5vw,2.65rem)/1.25 var(--serif);letter-spacing:-.035em}
+    .quote-band p{color:var(--muted);font-size:.84rem;margin:20px 0 0}
+    .pricing{background:#fff;border:1px solid var(--line);border-radius:18px;padding:32px;max-width:510px;margin:0 auto;box-shadow:0 18px 55px #1e39230a}
+    .pricing-top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+    .pricing h3{font-size:1.15rem;margin:0 0 7px}
+    .pricing .plan-desc{font-size:.88rem;color:var(--muted);margin:0}
+    .price{white-space:nowrap;font:400 2.5rem/1 var(--serif);letter-spacing:-.05em}
+    .price small{font:400 .8rem var(--sans);color:var(--muted);letter-spacing:0}
+    .price-note{font-size:.78rem;color:#71806f;margin:18px 0 20px;padding:10px 12px;border-radius:8px;background:#f3f5ef}
+    .pricing .check-list{margin:20px 0 25px}
+    .pricing .button{width:100%;padding:14px}
+    .pricing-foot{text-align:center;color:var(--muted);font-size:.76rem;margin:13px 0 0}
+    .final-cta{background:var(--green);color:#fff;border-radius:20px;padding:54px 30px;text-align:center;position:relative;overflow:hidden}
+    .final-cta:before,.final-cta:after{content:"";position:absolute;border:1px solid #ffffff1e;border-radius:50%;width:280px;height:280px;top:-180px;left:-70px}
+    .final-cta:after{left:auto;top:auto;right:-80px;bottom:-220px;width:360px;height:360px}
+    .final-cta h2{position:relative;font:400 clamp(2.4rem,4vw,3.5rem)/1.08 var(--serif);letter-spacing:-.05em;margin:0 auto 13px;max-width:660px}
+    .final-cta p{position:relative;color:#d5e1d7;max-width:530px;margin:0 auto 23px}
+    .final-cta .button{position:relative;background:var(--lime);border-color:var(--lime);color:#1d3324}
+    .final-cta .button:hover{background:#e3f6b8}
+    footer{padding:27px 0 32px;color:var(--muted);font-size:.8rem}
+    .footer-inner{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+    .footer-links{display:flex;gap:20px}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:900px){.hero{gap:35px;padding:66px 0}.app-body{grid-template-columns:104px 1fr}.sidebar{padding-inline:7px}.dash{padding:18px 14px}.float-note{right:-8px}.planner-layout{gap:35px}.trust-line{gap:20px}}
+    @media(max-width:700px){.wrap{width:min(100% - 32px,560px)}.nav{height:68px}.nav-links{gap:12px}.nav-links>a:not(.nav-cta){display:none}.nav-cta{padding:10px 14px;font-size:.82rem}.hero{grid-template-columns:1fr;padding:58px 0 56px;gap:42px}.hero-copy{font-size:1rem}.hero-art{margin:0 8px 10px 0}.app-body{grid-template-columns:100px 1fr;min-height:0}.dash{padding:17px 12px}.float-note{right:-6px;bottom:-12px}.trust-line{justify-content:flex-start;gap:14px 22px;font-size:.76rem}.trust-line span{width:calc(50% - 12px)}section.content{padding:72px 0}.section-head{margin-bottom:30px}.feature-grid{grid-template-columns:1fr}.feature{min-height:0;padding:23px}.feature-icon{margin-bottom:16px}.planner-layout{grid-template-columns:1fr;gap:35px}.planner-copy h2{font-size:2.8rem}.calendar{padding:13px}.calendar-grid{gap:4px}.event{padding:7px 5px;font-size:.58rem;min-height:65px}.event small{font-size:.51rem}.quote-band{padding:52px 0}.pricing{padding:25px 21px}.final-cta{padding:42px 22px}.footer-inner{align-items:flex-start;flex-direction:column}}
+    @media(max-width:390px){h1{font-size:2.8rem}.app-body{grid-template-columns:82px 1fr}.side-item{font-size:.61rem;gap:5px}.dash-title{font-size:1.05rem}.bottom-cards{grid-template-columns:1fr}.calendar-grid{gap:3px}.event{font-size:.53rem;padding:6px 4px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
   </style>
 </head>
 <body>
-  <main class="shell">
-    <div class="eyebrow">Internal agency tool · Early MVP</div>
-    <h1>Understand the buyers before creating the marketing.</h1>
-    <p class="intro">Build a first-pass research brief for a B2B SaaS company from its product details, competitor context, and real customer evidence. Separate what the evidence supports from what still needs validation.</p>
-    <div class="notice"><strong>Important:</strong> This prototype does not browse the web automatically. Add source URLs and paste relevant public evidence below. The AI will analyze what you provide and label unsupported conclusions as hypotheses.</div>
-    <div class="layout">
-      <section class="panel">
-        <h2>Company and audience</h2>
-        <p class="sub">More specific inputs lead to more useful research.</p>
-        <form id="research-form">
-          <label for="company">Company / product name *</label>
-          <input id="company" name="company" required maxlength="120" placeholder="e.g. Acme Analytics">
-          <label for="website">Website URL</label>
-          <input id="website" name="website" type="url" maxlength="500" placeholder="https://example.com">
-          <label for="product">What does the product do? *</label>
-          <textarea id="product" name="product" required maxlength="3000" placeholder="Explain the product, key features, and problem it solves."></textarea>
-          <label for="audience">Who do you think buys it?</label>
-          <textarea id="audience" name="audience" maxlength="2000" placeholder="Roles, company size, industry, or use cases. It's okay if this is uncertain."></textarea>
-          <label for="competitors">Competitors / alternatives and their URLs</label>
-          <textarea id="competitors" name="competitors" maxlength="3000" placeholder="Names, URLs, or alternatives customers might use instead."></textarea>
-          <label for="evidence">Customer evidence and source URLs *</label>
-          <textarea id="evidence" name="evidence" required maxlength="7000" placeholder="Paste public review excerpts, forum comments, customer quotes, survey findings, or support questions. Include a source URL and date when available. Don't paste private or identifying customer data."></textarea>
-          <p class="hint">Use public evidence only. Remove names, emails, and any private customer information.</p>
-          <button class="button" id="submit" type="submit">Create research brief</button>
-          <p class="status" id="status" role="status" aria-live="polite"></p>
-        </form>
-      </section>
-      <section class="panel">
-        <h2>Research brief</h2>
-        <p class="sub">Evidence, audience hypotheses, objections, and marketing tests.</p>
-        <div id="result" class="result" aria-live="polite"></div>
-      </section>
+  <header class="wrap">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#" aria-label="Growthdesk home"><span class="brand-mark" aria-hidden="true">g</span>growthdesk</a>
+      <div class="nav-links">
+        <a href="#how-it-works">How it works</a>
+        <a href="#planner">Planner</a>
+        <a href="#pricing">Pricing</a>
+        <a class="nav-cta" href="#early-access">Get early access <span aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <div>
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Marketing, with a plan</div>
+        <h1>Good marketing deserves more than a <em>to-do list.</em></h1>
+        <p class="hero-copy">A practical workspace for small SaaS teams to plan campaigns, create useful content, and keep the work that drives growth moving.</p>
+        <div class="actions">
+          <a class="button" href="#early-access">Get early access <span aria-hidden="true">↗</span></a>
+          <a class="button secondary" href="#planner">Explore the planner <span aria-hidden="true">↓</span></a>
+        </div>
+        <p class="microcopy">A clearer plan. A steadier rhythm. Less marketing guesswork.</p>
+      </div>
+
+      <div class="hero-art" aria-label="Preview of the Growthdesk marketing workspace">
+        <div class="app-window">
+          <div class="app-top">
+            <div class="app-brand"><span class="mini-mark">g</span> growthdesk <span style="font-weight:450;color:#7b857b">/ workspace</span></div>
+            <div class="top-right">WEEKLY PLAN&nbsp; ↗</div>
+          </div>
+          <div class="app-body">
+            <aside class="sidebar" aria-label="Preview navigation">
+              <p class="side-label">Workspace</p>
+              <div class="side-item active"><span class="side-icon">▦</span> Overview</div>
+              <div class="side-item"><span class="side-icon">◎</span> Strategy</div>
+              <div class="side-item"><span class="side-icon">▤</span> Content</div>
+              <div class="side-item"><span class="side-icon">☷</span> Growth tasks</div>
+              <div class="side-item"><span class="side-icon">◷</span> Progress</div>
+            </aside>
+            <div class="dash">
+              <div class="dash-overline">MONDAY, OCTOBER 19</div>
+              <h2 class="dash-title">A focused week.</h2>
+              <p class="dash-desc">Three priorities to keep your marketing moving.</p>
+              <div class="week-head"><strong>This week's priorities</strong><span>2 of 4 planned</span></div>
+              <div class="task"><span class="check">✓</span><div><strong>Outline a customer problem post</strong><small>Content · LinkedIn</small></div><span class="pill green">Done</span></div>
+              <div class="task"><span class="check"></span><div><strong>Refresh the homepage headline</strong><small>Website · Conversion</small></div><span class="pill">Today</span></div>
+              <div class="task"><span class="check"></span><div><strong>Ask two customers about onboarding</strong><small>Research · Customer insight</small></div><span class="pill">Thu</span></div>
+              <div class="bottom-cards">
+                <div class="mini-card"><span>Content planned</span><strong>4 pieces</strong><div class="mini-bar"><i></i></div></div>
+                <div class="mini-card"><span>Next review</span><strong>Friday</strong><span style="margin-top:3px">Review what worked</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="float-note"><strong>One step at a time.</strong><span>Know what matters this week — and why.</span></div>
+      </div>
+    </section>
+
+    <div class="trust-line wrap" aria-label="Product principles">
+      <span><b aria-hidden="true">↗</b> Built around your business</span>
+      <span><b aria-hidden="true">◷</b> Designed for consistent execution</span>
+      <span><b aria-hidden="true">✓</b> Practical, editable plans</span>
     </div>
-    <footer>Internal prototype. AI output can be wrong. Verify claims and source material before using it in client work. Do not enter API keys or confidential client information here.</footer>
+
+    <section class="content wrap" id="how-it-works">
+      <div class="section-head">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> A better working rhythm</div>
+        <h2>From scattered ideas to focused progress.</h2>
+        <p>Marketing gets easier to manage when the strategy, content, and next steps live in one place.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature">
+          <div class="feature-icon" aria-hidden="true">⌕</div>
+          <h3>Get clear on your direction</h3>
+          <p>Keep your audience, positioning, key messages, and marketing priorities grounded in the business you're actually building.</p>
+        </article>
+        <article class="feature">
+          <div class="feature-icon" aria-hidden="true">▦</div>
+          <h3>Plan content with purpose</h3>
+          <p>Turn useful ideas into a manageable calendar of posts, articles, and campaigns — with a reason behind each one.</p>
+        </article>
+        <article class="feature">
+          <div class="feature-icon" aria-hidden="true">↗</div>
+          <h3>Keep growth work moving</h3>
+          <p>Break bigger goals into concrete tasks, set priorities, and review what you've learned before choosing the next move.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="content planner-section" id="planner">
+      <div class="wrap planner-layout">
+        <div class="planner-copy">
+          <div class="eyebrow"><span class="eyebrow-dot"></span> Your marketing planner</div>
+          <h2>A plan you can actually follow.</h2>
+          <p>Skip the endless lists and disconnected documents. Organize your marketing into realistic weekly actions, with room to adapt when priorities change.</p>
+          <ul class="check-list">
+            <li>A calendar for content and campaigns</li>
+            <li>Clear tasks with owners, due dates, and status</li>
+            <li>Drafts you can review and make your own</li>
+            <li>A regular check-in to learn and adjust</li>
+          </ul>
+        </div>
+        <div class="calendar" aria-label="Example weekly content calendar">
+          <div class="calendar-head"><strong>Content calendar</strong><span>Example week&nbsp; · &nbsp;Oct 19–23</span></div>
+          <div class="calendar-grid">
+            <div class="day"><div class="day-name">MON</div><div class="day-date">19</div><div class="event"><small>LINKEDIN</small>The problem your customers face</div><div class="event blank">+ Add task</div></div>
+            <div class="day"><div class="day-name">TUE</div><div class="day-date">20</div><div class="event sand"><small>WEBSITE</small>Review landing page message</div></div>
+            <div class="day"><div class="day-name">WED</div><div class="day-date">21</div><div class="event blue"><small>RESEARCH</small>Collect customer questions</div></div>
+            <div class="day"><div class="day-name">THU</div><div class="day-date">22</div><div class="event"><small>LINKEDIN</small>Share a practical lesson</div></div>
+            <div class="day"><div class="day-name">FRI</div><div class="day-date">23</div><div class="event sand"><small>REVIEW</small>Note results and next steps</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="quote-band wrap">
+      <blockquote>“The goal isn't to do more marketing. It's to make the work you do count.”</blockquote>
+      <p>A more deliberate approach to growth for small SaaS teams.</p>
+    </section>
+
+    <section class="content wrap" id="pricing">
+      <div class="section-head">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Early access</div>
+        <h2>Simple by design.</h2>
+        <p>We're shaping the first version around the essentials: a useful plan, a content calendar, and practical next steps.</p>
+      </div>
+      <div class="pricing">
+        <div class="pricing-top">
+          <div><h3>Founding plan</h3><p class="plan-desc">For small SaaS teams building a consistent marketing habit.</p></div>
+          <div class="price">$24<small> / month*</small></div>
+        </div>
+        <p class="price-note">Proposed early-access price. Final features and pricing will be confirmed before paid access opens.</p>
+        <ul class="check-list">
+          <li>One company marketing workspace</li>
+          <li>A tailored monthly marketing plan</li>
+          <li>Content planning and draft creation</li>
+          <li>Prioritized growth tasks and reviews</li>
+        </ul>
+        <a class="button" href="#early-access">Get early access <span aria-hidden="true">↗</span></a>
+        <p class="pricing-foot">No payment is collected on this preview page.</p>
+      </div>
+    </section>
+
+    <section class="wrap" id="early-access" style="padding-bottom:76px">
+      <div class="final-cta">
+        <h2>Make your next marketing move a clear one.</h2>
+        <p>We're putting the first version together. Help shape a calmer, more practical way to run SaaS marketing.</p>
+        <a class="button" href="#pricing">Explore the planned offer <span aria-hidden="true">↑</span></a>
+      </div>
+    </section>
   </main>
-  <script>
-    const form = document.querySelector("#research-form");
-    const submit = document.querySelector("#submit");
-    const status = document.querySelector("#status");
-    const result = document.querySelector("#result");
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      submit.disabled = true;
-      status.textContent = "Analyzing the supplied information…";
-      result.textContent = "";
-      const data = Object.fromEntries(new FormData(form).entries());
-      try {
-        const response = await fetch("/api/research", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(payload.error || "Research request failed.");
-        result.textContent = payload.report || "No report was returned.";
-        status.textContent = "Brief created. Verify evidence and hypotheses before using it.";
-      } catch (error) {
-        status.textContent = error.message || "Something went wrong. Please try again.";
-      } finally {
-        submit.disabled = false;
-      }
-    });
-  </script>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <a class="brand" href="#"><span class="brand-mark" aria-hidden="true">g</span>growthdesk</a>
+      <span>Thoughtful marketing. Steady progress.</span>
+      <div class="footer-links"><a href="#how-it-works">How it works</a><a href="#pricing">Early access</a></div>
+    </div>
+  </footer>
 </body>
 </html>
