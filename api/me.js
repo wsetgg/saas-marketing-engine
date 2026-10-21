@@ -1,4 +1,4 @@
-import { getAuthenticatedUser } from "./_auth.js";
+import { getAuthenticatedUser } from "../lib/auth.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
