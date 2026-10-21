@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { upsertSubscription } from "./_auth.js";
+import { upsertSubscription } from "../lib/auth.js";
 
 export const config = { api: { bodyParser: false } };
 
