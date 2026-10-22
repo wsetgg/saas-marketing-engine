@@ -71,11 +71,11 @@ export default async function handler(req, res) {
   const draft = clean(body.draft, 12000);
   const contentType = clean(body.contentType, 100);
   const tone = clean(body.tone, 100);
-  const length = clean(body.length, 30);\n  const creativeFormat = clean(body.creativeFormat, 40);
+  const length = clean(body.length, 30);\n  const creativeFormat = clean(body.creativeFormat, 40);\n  const adPlatform = clean(body.adPlatform, 80);
 
   if (!["plan", "content", "improve"].includes(kind)) return res.status(400).json({ error: "Unknown generation type." });
   if (!company || !goal) return res.status(400).json({ error: "Save a company name and marketing goal before generating." });
-  if (kind !== "plan" && !topic && !(kind === "improve" && draft)) return res.status(400).json({ error: "Add a topic or draft first." });
+  if (kind !== "plan" && !topic && !(kind === "improve" && draft) && !(kind === "content" && contentType === "Ad creative")) return res.status(400).json({ error: "Add a topic or draft first." });
   if (kind === "improve" && !draft) return res.status(400).json({ error: "Add a draft to improve." });
 
   const url = process.env.SUPABASE_URL;
@@ -180,7 +180,7 @@ For social posts, write one polished post with a hook, useful substance, and a n
 - Text ad: primary copy, headline, CTA, and audience.
 - Image ad concept: ad copy, visual layout, on-image text, composition, and a detailed image-generation prompt that describes the subject, scene, style, and format.
 - Short video ad concept: a 15–30 second storyboard with timestamps, shot-by-shot visuals, on-screen text, voiceover, sound direction, CTA, and a detailed video-generation prompt.
-For image and video concepts, return a production-ready creative brief and prompt; do not claim to have rendered an actual image or video. This app currently generates text and creative prompts only.
+For image and video concepts, use the supplied company profile and notes as the creative brief automatically: reflect the actual product/service, target buyer, their likely problem, and the stated goal. Do not make up features, pricing, testimonials, or results. Return a production-ready creative brief and prompt; do not claim to have rendered an actual image or video. This app currently generates text and creative prompts only. For the selected platform, respect typical aspect ratio and placement conventions; if unspecified, recommend one format and explain it briefly.
 Make the asset specific to the supplied customer and business. Start with the asset itself, not an explanation. Use a clear CTA where appropriate. Never invent testimonials, statistics, case studies, or product capabilities. Mark unknown facts as placeholders.`;  } else {
     instruction = `Improve the following ${contentType || "marketing"} draft for clarity, specificity, flow, and usefulness.\nAd format: ${creativeFormat || "Not applicable"}. For image/video ad concepts, preserve the production-ready visual brief and generation prompt; do not claim an actual media file was rendered.
 Topic/goal: ${topic || "Use the existing draft's purpose"}
