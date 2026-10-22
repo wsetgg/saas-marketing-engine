@@ -1,7 +1,7 @@
 import { getAuthenticatedUser } from "../lib/auth.js";
 
 const MODEL = "claude-haiku-5-5";
-const MAX_BODY_CHARS = 14000;
+const MAX_BODY_CHARS = 32000;
 const MAX_GENERATIONS_PER_HOUR = 12;
 const recentRequests = new Map();
 
@@ -64,11 +64,11 @@ export default async function handler(req, res) {
   const kind = clean(body.kind, 20);
   const company = clean(body.company, 120);
   const website = clean(body.website, 500);
-  const audience = clean(body.audience, 3000);
-  const goal = clean(body.goal, 3000);
-  const notes = clean(body.notes, 5000);
-  const topic = clean(body.topic, 3000);
-  const draft = clean(body.draft, 6000);
+  const audience = clean(body.audience, 5000);
+  const goal = clean(body.goal, 5000);
+  const notes = clean(body.notes, 9000);
+  const topic = clean(body.topic, 5000);
+  const draft = clean(body.draft, 12000);
   const contentType = clean(body.contentType, 100);
   const tone = clean(body.tone, 100);
   const length = clean(body.length, 30);
@@ -172,11 +172,11 @@ ${draft}`;
       headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: kind === "plan" ? 4500 : 1800,
+        max_tokens: kind === "plan" ? 7000 : 3500,
         system,
         messages: [{ role: "user", content: companyContext + "\n\n" + instruction }]
       }),
-      signal: AbortSignal.timeout(45000)
+      signal: AbortSignal.timeout(60000)
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
