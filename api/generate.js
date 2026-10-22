@@ -3,6 +3,7 @@ import { getAuthenticatedUser } from "../lib/auth.js";
 const MODEL = "claude-haiku-5-5";
 const MAX_BODY_CHARS = 14000;
 const MAX_GENERATIONS_PER_HOUR = 12;
+const recentRequests = new Map();
 
 function clean(value, limit) {
   return typeof value === "string" ? value.trim().slice(0, limit) : "";
@@ -103,6 +104,15 @@ export default async function handler(req, res) {
       console.error("Generation usage check failed", error?.name || "Error");
     }
   }
+
+  // Best-effort per-user limiter for serverless instances; the saved-item count above adds a second guard.
+  const now = Date.now();
+  const previous = (recentRequests.get(auth.user.id) || []).filter(ts => now - ts < 60 * 60 * 1000);
+  if (previous.length >= 6) {
+    return res.status(429).json({ error: "You've reached the current generation limit. Please wait before generating more content." });
+  }
+  previous.push(now);
+  recentRequests.set(auth.user.id, previous);
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(503).json({ error: "Server setup incomplete: ANTHROPIC_API_KEY is missing." });
