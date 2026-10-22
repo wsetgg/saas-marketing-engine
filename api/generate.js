@@ -127,28 +127,38 @@ export default async function handler(req, res) {
 
   let instruction;
   if (kind === "plan") {
-    instruction = `Write a complete, useful 30-day marketing plan for this specific business. Do not merely repeat or paraphrase the company profile or notes. Synthesize them into decisions, recommendations, and concrete next steps. The plan should be detailed enough that a founder can execute it without needing to ask what each recommendation means.
+    instruction = `Create a SIMPLE, DIRECT 30-day marketing action plan for this specific business. The user should finish reading and know exactly what to do next. Do not write a long marketing report, repeat the company brief, or overwhelm them with options.
 
-Use these sections and provide meaningful detail in each:
-1. EXECUTIVE DIRECTION — a short strategic recommendation: the main audience to focus on, the core message to test, and the single highest-priority channel for the next 30 days. Explain why.
-2. MARKETING DIAGNOSIS — distinguish known facts from assumptions. Identify the 2-4 biggest likely bottlenecks and explain what evidence would confirm or disprove each one. Do not claim to have visited or reviewed the website.
-3. IDEAL CUSTOMER — define the likely buyer, their job-to-be-done, pain points, desired outcome, objections, buying triggers, and where/how to reach them. Label inferred details as hypotheses.
-4. POSITIONING AND MESSAGING — propose one clear value proposition, a headline direction, 3 message pillars, and example messaging. Never claim unprovided product features or proof.
-5. TWO OR THREE CAMPAIGNS — for each, specify target segment, problem, core message, channel, offer/content asset, CTA, step-by-step execution, why it fits this company, estimated effort/cost as qualitative low/medium/high, and what to learn. Do not suggest more than three campaigns.
-6. WEEK-BY-WEEK EXECUTION — provide Weeks 1-4 with a clear objective, specific deliverables, and actionable checklist items. Make each task start with a verb and be concrete (for example, draft a specific asset, publish a defined number of posts, configure a tracking event, or interview a defined type of prospect). Sequence dependencies realistically. Include a suggested cadence where useful.
-7. READY-TO-USE EXAMPLES — include 2 sample message angles or hooks tailored to this audience and one example CTA. Do not write a whole content calendar here; content creation is a separate feature.
-8. METRICS AND REVIEW — define a small funnel of leading and lagging indicators, what to track, where to track it, and how to review it weekly. If baseline data is missing, give a Week 1 baseline task rather than inventing numbers.
-9. PRIORITIZED ACTION LIST — rank the 5 most important actions by expected impact (high/medium/low), effort (high/medium/low), and cost (high/medium/low), with a one-sentence reason for each. Mark the first action to do today.
-10. RISKS AND VALIDATION — list the most important uncertainties and the cheapest practical way to test each.
+Return ONLY these 5 sections, using clear Markdown headings:
+
+# The goal
+In 1-2 sentences, state the main outcome to pursue and the single strategy you recommend. Do not promise results. If the target seems unsupported by data, say what needs checking first.
+
+# Do these 3 things first
+Choose exactly three high-priority actions, in order. For each, use this format:
+- **Action:** Start with a clear verb and say exactly what to do.
+- **How:** Give 2-4 practical steps, specific to this company.
+- **Deliverable:** State what should exist when the action is finished.
+- **When:** Give a realistic day or deadline.
+- **Success check:** Name one measurable signal to watch.
+
+# Your 30-day schedule
+Break the month into Week 1, Week 2, Week 3, and Week 4. Give each week one main outcome and 3-5 concrete checklist items. Each item must start with a verb and describe a visible task, such as "Write three LinkedIn posts about X" or "Ask five target customers how they currently solve Y." Avoid vague items like "improve marketing," "build awareness," or "optimize the funnel." Keep the workload realistic for one person.
+
+# Use this message
+Provide one short positioning statement, one headline, one example post or outreach message tailored to the stated audience, and one clear call to action. Do not invent product features, customer results, testimonials, statistics, or integrations.
+
+# Track these numbers
+Choose only 3-5 metrics tied directly to the goal. For each, say where to find it and what action to take if the number is weak. If baseline data is missing, make collecting it the first task; do not invent benchmarks.
 
 Quality rules:
-- Aim for a complete plan of roughly 1,500-2,200 words. Do not stop after the first few sections; finish every numbered section.
-- Do not restate the supplied brief as filler. Use the company context throughout the recommendations, and explain why each tactic fits this audience and goal.
-- Separate supplied facts from assumptions and hypotheses.
-- The goal is an objective, not a promised result. Do not guarantee 15 demo requests or invent conversion rates, market sizes, customer results, testimonials, or benchmarks.
-- Prefer a few well-executed actions over generic lists, jargon, or dozens of ideas.
-- If key information is missing, state the assumption briefly and recommend how to validate it; still provide a useful plan.
-- Use readable Markdown headings and actionable bullets. End with a short "Start today" checklist of no more than three actions.`;
+- Aim for 500-800 words maximum. Prefer short bullets and direct instructions over paragraphs.
+- Prioritize one main channel and one supporting tactic. Do not propose a long list of campaigns.
+- Be concrete: name the asset to create, who it is for, where to publish/send it, and the next step.
+- Use the supplied company details throughout. Treat missing details as assumptions and briefly say how to verify them.
+- Do not claim to have visited the website or checked analytics.
+- Make every recommendation answer: "What exactly should I do?"
+- Finish with a short **Start today** checklist of exactly 3 actions.`;
   } else if (kind === "content") {
     instruction = `Create a ready-to-edit ${contentType || "marketing content"} draft for this company.
 Topic/campaign goal: ${topic}
