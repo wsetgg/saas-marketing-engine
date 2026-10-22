@@ -71,7 +71,7 @@ export default async function handler(req, res) {
   const draft = clean(body.draft, 12000);
   const contentType = clean(body.contentType, 100);
   const tone = clean(body.tone, 100);
-  const length = clean(body.length, 30);
+  const length = clean(body.length, 30);\n  const creativeFormat = clean(body.creativeFormat, 40);
 
   if (!["plan", "content", "improve"].includes(kind)) return res.status(400).json({ error: "Unknown generation type." });
   if (!company || !goal) return res.status(400).json({ error: "Save a company name and marketing goal before generating." });
@@ -127,52 +127,62 @@ export default async function handler(req, res) {
 
   let instruction;
   if (kind === "plan") {
-    instruction = `Build a practical, customer-specific marketing dashboard plan for this business. The plan must help the owner decide what to do next, not read like a generic marketing article. Use the supplied ideal customer and business goal throughout.
+    instruction = `Create a focused, easy-to-scan 30-day marketing plan. The user wants a clear dashboard, not a long strategy essay. Prioritize what to do and what to make. Use the supplied company, audience, goal, and notes.
 
-Return these sections with these exact Markdown headings so the app can display them as dashboard cards:
+Return exactly these six Markdown sections in this order. Keep headings exactly as written because the app renders each section as a card.
 
-# Customer snapshot
-Identify the specific buyer/user described in the brief, their likely day-to-day problem, the outcome they want, what may stop them from buying, and the event that might make them look for a solution now. Distinguish supplied facts from hypotheses. If the audience description is too broad, narrow it to one testable initial segment and explain why.
+# 1. The target customer
+- **Who:** one specific initial buyer segment, grounded in the supplied details.
+- **Problem:** the main problem they want solved.
+- **Why they would care now:** a plausible trigger, labelled as a hypothesis if not supplied.
+- **Message to lead with:** one sentence in the customer's language.
+Keep this to 60–90 words. Separate facts from assumptions.
 
-# The goal
-State one measurable 30-day objective and the single main strategy you recommend. Connect the strategy directly to the customer's problem and the company's stated goal. Pick one primary acquisition channel and at most one supporting channel. Explain why these are the best initial channels for this audience, while acknowledging missing evidence.
+# 2. The 30-day outcome
+State one measurable goal, the primary marketing channel, at most one supporting channel, and why this focus fits the buyer. If there is no baseline, say to measure it in Week 1. Do not promise results. Keep this to 60–90 words.
 
-# Do these 3 things first
-Give exactly three prioritized actions. For each include:
-- **Action:** one direct, verb-led instruction.
-- **Target customer:** who this is for, as specifically as the supplied evidence allows.
-- **How:** 2-4 numbered practical steps, including what to write/build/send, where to publish it, and what CTA to use.
-- **Deliverable:** the concrete finished asset or result.
-- **When:** a realistic deadline in days.
-- **Success check:** a measurable signal to inspect.
-Avoid advice such as "build awareness" unless you say exactly how.
+# 3. Do these 3 actions first
+Give exactly three numbered actions in priority order. Each action must have:
+- **Do:** a direct instruction starting with a verb.
+- **Steps:** no more than three short steps, saying exactly what to write, build, publish, or send and where.
+- **Deliverable:** the finished asset.
+- **Deadline:** day 1, 3, or 7 (use each once).
+- **Success check:** one measurable signal.
+Make these concrete enough to follow without needing another strategy session. Keep this to 150–200 words total.
 
-# 30-day execution dashboard
-Split the month into Week 1, Week 2, Week 3, and Week 4. For each week provide one outcome, 3-5 short checklist items, and a clear deliverable. Tasks must be achievable for a small team or solo founder. Sequence research before spending money or scaling a campaign. Use actual audience language and relevant use cases from the supplied brief; do not invent customer quotes or research findings.
+# 4. 30-day schedule
+Use four compact subsections: **Week 1 — Set up**, **Week 2 — Publish**, **Week 3 — Learn**, **Week 4 — Improve**. For each week give one outcome and 3–4 checkbox-style tasks. Each task should be one line and build on the previous week. Do not repeat the three priority actions word-for-word. Keep this to 120–160 words.
 
-# Messaging to test
-Provide one concise positioning statement, one homepage headline, one example post or direct outreach message aimed at the target buyer, and one CTA. Tie the message to a concrete pain point or desired outcome from the brief. Do not invent features, integrations, case studies, customer results, testimonials, or statistics.
+# 5. Ready-to-use messaging
+Give exactly: one homepage headline, one supporting sentence, one CTA, and one example post or outreach message (choose whichever best fits the channel). Make each ready to copy and use. Do not invent product features, customer quotes, testimonials, statistics, or results. Keep this to 70–100 words.
 
-# Performance scorecard
-Choose only 3-5 metrics that map to the stated goal. For each say what it measures, where the user can find/record it, and what to change if it is weak. Do not invent target benchmarks or conversion rates. If no baseline exists, make recording a baseline part of Week 1.
+# 6. Scorecard
+Give 3–4 metrics in a compact list. For each: **Metric — Where to check — If weak, do this.** Tie each metric to the stated goal. If tools/baselines are unknown, say what to record manually instead of pretending analytics are connected.
 
-Quality rules:
-- Keep the plan between 500 and 850 words. Use short bullets, compact checklists, and direct language.
-- Every recommendation must specify who it is for, what to do, and the expected deliverable.
-- Use one primary customer segment and one primary channel; don't present a buffet of strategies.
-- Use company notes as context, but do not blindly repeat them. Improve them with prioritization and explain the reasoning.
-- Do not claim to have browsed the website, checked analytics, researched competitors, or verified customer behavior.
-- If critical information is missing, label it as a hypothesis and give a cheap way to validate it before committing budget.
-- Don't guarantee the goal will be achieved. Do not fabricate market sizes, benchmarks, competitor facts, or customer evidence.
-- Finish with **Start today** and exactly three actions.`;
-  } else if (kind === "content") {
-    instruction = `Create a ready-to-edit ${contentType || "marketing content"} draft for this company.
+Rules:
+- Target 450–650 words maximum. Prefer short bullets, numbered steps, and checkboxes over paragraphs.
+- No introduction, conclusion, generic marketing advice, or extra sections. End after the scorecard.
+- One buyer segment, one primary channel, one supporting channel at most.
+- Do not repeat the brief. Every section must add a decision or action.
+- Do not claim to have browsed the website, researched competitors, or checked analytics.
+- Label unverified audience behavior as a hypothesis; give a low-cost way to validate it.
+- Never fabricate facts, benchmarks, customer evidence, or guaranteed outcomes.`;  } else if (kind === "content") {
+    const adFormat = creativeFormat || "Text ad";
+    const isVisualAd = contentType === "Ad creative" && adFormat !== "Text ad";
+    instruction = `Create one practical, campaign-ready asset for this company.
+Asset type: ${contentType || "Marketing content"}
+${contentType === "Ad creative" ? "Ad format: " + adFormat : ""}
 Topic/campaign goal: ${topic}
-Tone: ${tone || "clear and practical"}
+Tone: ${tone || "Clear and practical"}
 Length: ${length || "Medium"}
-Adapt to the ideal customer, positioning, and marketing goal; make the draft sound like a real, specific B2B SaaS business rather than generic AI copy. Start with the finished draft, not an explanation. For long formats, include the complete requested structure and do not end mid-section. Use a clear CTA when appropriate. Never invent customer testimonials, statistics, case studies, or product capabilities. If a needed fact is unknown, use a clearly marked placeholder rather than fabricating it.`;
-  } else {
-    instruction = `Improve the following ${contentType || "marketing"} draft for clarity, specificity, flow, and usefulness.
+
+For social posts, write one polished post with a hook, useful substance, and a natural CTA. For email, write a subject line and complete email. For landing-page copy, provide a headline, supporting copy, benefits, and CTA. For blog/SEO content, provide a useful outline or draft with clear headings. For ad creative, match the requested format:
+- Text ad: primary copy, headline, CTA, and audience.
+- Image ad concept: ad copy, visual layout, on-image text, composition, and a detailed image-generation prompt that describes the subject, scene, style, and format.
+- Short video ad concept: a 15–30 second storyboard with timestamps, shot-by-shot visuals, on-screen text, voiceover, sound direction, CTA, and a detailed video-generation prompt.
+For image and video concepts, return a production-ready creative brief and prompt; do not claim to have rendered an actual image or video. This app currently generates text and creative prompts only.
+Make the asset specific to the supplied customer and business. Start with the asset itself, not an explanation. Use a clear CTA where appropriate. Never invent testimonials, statistics, case studies, or product capabilities. Mark unknown facts as placeholders.`;  } else {
+    instruction = `Improve the following ${contentType || "marketing"} draft for clarity, specificity, flow, and usefulness.\nAd format: ${creativeFormat || "Not applicable"}. For image/video ad concepts, preserve the production-ready visual brief and generation prompt; do not claim an actual media file was rendered.
 Topic/goal: ${topic || "Use the existing draft's purpose"}
 Tone: ${tone || "clear and practical"}
 Length: ${length || "Medium"}
