@@ -1,109 +1,134 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f7f2"><title>Sign in — Growthdesk</title>
 <style>
-:root{--paper:#f7f7f2;--ink:#17241e;--muted:#65716a;--line:#e1e5dc;--green:#315d43;--soft:#edf1e8}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--paper);color:var(--ink);font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;padding:24px}.card{width:min(100%,440px);background:#fff;border:1px solid var(--line);border-radius:20px;padding:34px;box-shadow:0 20px 60px #17241e0d}.brand{font-weight:800;letter-spacing:-.04em;font-size:1.2rem;display:flex;align-items:center;gap:9px}.mark{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--green);color:#fff}h1{font:400 2.4rem/1.08 Georgia,serif;letter-spacing:-.05em;margin:29px 0 10px}p{color:var(--muted);margin:0 0 22px}.label{font-size:.82rem;font-weight:650;display:block;margin-bottom:7px}input{width:100%;padding:13px 14px;border:1px solid #cfd6ca;border-radius:10px;font:inherit;outline-color:var(--green)}button,.button{width:100%;display:flex;justify-content:center;align-items:center;margin-top:12px;border:1px solid var(--green);border-radius:999px;padding:13px 18px;background:var(--green);color:#fff;font:650 .95rem inherit;cursor:pointer;text-decoration:none}button:disabled{opacity:.6;cursor:wait}.secondary{background:#fff;color:var(--ink);border-color:var(--line)}.status{font-size:.88rem;margin-top:16px;min-height:24px;color:var(--green)}.fine{font-size:.76rem;margin-top:22px;margin-bottom:0}.back{display:inline-block;color:var(--muted);font-size:.85rem;margin-top:18px}#pay{display:none}
-</style></head><body><main class="card"><a class="brand" href="index.html" style="text-decoration:none;color:inherit"><span class="mark">g</span>growthdesk</a><h1>Your workspace, ready when you are.</h1><p>Enter your email and we'll send you a secure sign-in link. You can use the same link flow for new and returning accounts.</p>
-<form id="login-form"><label class="label" for="email">Work email</label><input id="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@company.com"><button id="send" type="submit">Email me a sign-in link</button></form>
+:root{--paper:#f7f7f2;--ink:#17241e;--muted:#65716a;--line:#e1e5dc;--green:#315d43;--soft:#edf1e8}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--paper);color:var(--ink);font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;padding:24px}.card{width:min(100%,440px);background:#fff;border:1px solid var(--line);border-radius:20px;padding:34px;box-shadow:0 20px 60px #17241e0d}.brand{font-weight:800;letter-spacing:-.04em;font-size:1.2rem;display:flex;align-items:center;gap:9px}.mark{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--green);color:#fff}h1{font:400 2.4rem/1.08 Georgia,serif;letter-spacing:-.05em;margin:29px 0 10px}p{color:var(--muted);margin:0 0 22px}.label{font-size:.82rem;font-weight:650;display:block;margin:14px 0 7px}input{width:100%;padding:13px 14px;border:1px solid #cfd6ca;border-radius:10px;font:inherit;outline-color:var(--green)}button,.button{width:100%;display:flex;justify-content:center;align-items:center;margin-top:12px;border:1px solid var(--green);border-radius:999px;padding:13px 18px;background:var(--green);color:#fff;font:inherit;font-weight:650;cursor:pointer;text-decoration:none}button:disabled{opacity:.6;cursor:wait}.secondary{background:#fff;color:var(--ink);border-color:var(--line)}.mode{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:22px 0}.mode button{margin:0}.mode button[aria-pressed="false"]{background:#fff;color:var(--ink);border-color:var(--line)}.status{font-size:.88rem;margin-top:16px;min-height:24px;color:var(--green);overflow-wrap:anywhere}.fine{font-size:.76rem;margin-top:22px;margin-bottom:0}.back{display:inline-block;color:var(--muted);font-size:.85rem;margin-top:18px}#pay{display:none}
+</style></head><body><main class="card"><a class="brand" href="index.html" style="text-decoration:none;color:inherit"><span class="mark">g</span>growthdesk</a><h1 id="heading">Your workspace, ready when you are.</h1><p id="intro">Sign in with your email and password, or create an account to get started.</p>
+<div class="mode" role="group" aria-label="Account action"><button id="signin-mode" type="button" aria-pressed="true">Sign in</button><button id="signup-mode" type="button" aria-pressed="false">Create account</button></div>
+<form id="login-form"><label class="label" for="email">Email</label><input id="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@company.com"><label class="label" for="password">Password</label><input id="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="At least 8 characters"><button id="submit" type="submit">Sign in</button></form>
 <div id="status" class="status" role="status" aria-live="polite"></div><section id="pay"><p id="pay-copy"></p><button id="subscribe" type="button">Continue to secure checkout</button></section>
-<p class="fine">By continuing, you agree to use Growthdesk responsibly. This early version is in testing; no real payment is taken until checkout is configured for live mode.</p><a class="back" href="index.html">← Back to Growthdesk</a></main>
+<p class="fine">This early version is in testing. No real payment is taken until checkout is configured for live mode.</p><a class="back" href="index.html">← Back to Growthdesk</a></main>
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const statusEl=document.querySelector("#status");
 const form=document.querySelector("#login-form");
-const send=document.querySelector("#send");
+const submitButton=document.querySelector("#submit");
 const pay=document.querySelector("#pay");
+const emailInput=document.querySelector("#email");
+const passwordInput=document.querySelector("#password");
+const signinMode=document.querySelector("#signin-mode");
+const signupMode=document.querySelector("#signup-mode");
 let supabase;
+let mode="signin";
+let handlingSession=false;
+
+function setMode(nextMode) {
+  mode=nextMode;
+  const signingIn=mode==="signin";
+  signinMode.setAttribute("aria-pressed",String(signingIn));
+  signupMode.setAttribute("aria-pressed",String(!signingIn));
+  submitButton.textContent=signingIn?"Sign in":"Create account";
+  passwordInput.autocomplete=signingIn?"current-password":"new-password";
+  document.querySelector("#heading").textContent=signingIn?"Welcome back.":"Create your Growthdesk account.";
+  document.querySelector("#intro").textContent=signingIn?"Sign in with your email and password to open your workspace.":"Create an account with an email and password. No confirmation email is required while email confirmation is disabled.";
+  statusEl.textContent="";
+  pay.style.display="none";
+}
+signinMode.addEventListener("click",()=>setMode("signin"));
+signupMode.addEventListener("click",()=>setMode("signup"));
 
 try {
-  const configResponse = await fetch("/api/config", { cache: "no-store" });
-  const config = await configResponse.json();
-  if (!configResponse.ok) throw new Error(config.error || "Account setup is not ready yet.");
-  supabase = createClient(config.supabaseUrl, config.supabaseAnonKey, {
-    auth: { flowType: "pkce", detectSessionInUrl: false, persistSession: true, autoRefreshToken: true }
+  const configResponse=await fetch("/api/config",{cache:"no-store"});
+  const config=await configResponse.json();
+  if(!configResponse.ok) throw new Error(config.error||"Account setup is not ready yet.");
+  supabase=createClient(config.supabaseUrl,config.supabaseAnonKey,{
+    auth:{flowType:"pkce",detectSessionInUrl:false,persistSession:true,autoRefreshToken:true}
   });
-
-  // Explicitly exchange Supabase's PKCE callback code before looking for a session.
-  const callbackUrl = new URL(window.location.href);
-  const authCode = callbackUrl.searchParams.get("code");
-  if (authCode) {
-    const { error } = await supabase.auth.exchangeCodeForSession(authCode);
-    if (error) throw new Error("This sign-in link could not be verified. Please request a new link.");
-    callbackUrl.searchParams.delete("code");
-    window.history.replaceState({}, document.title, callbackUrl.pathname + callbackUrl.search + callbackUrl.hash);
-  }
-
-  const { data, error } = await supabase.auth.getSession();
-  if (error) throw error;
-  if (data.session) await handleSession(data.session);
-
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_IN" && session) void handleSession(session);
+  const {data,error}=await supabase.auth.getSession();
+  if(error) throw error;
+  if(data.session) await handleSession(data.session);
+  supabase.auth.onAuthStateChange((event,session)=>{
+    if(event==="SIGNED_IN"&&session) void handleSession(session);
   });
-} catch (error) {
-  statusEl.textContent = error.message || "Account setup is not ready yet.";
+} catch(error) {
+  statusEl.textContent=error.message||"Account setup is not ready yet.";
 }
 
-form.addEventListener("submit", async event => {
+form.addEventListener("submit",async event=>{
   event.preventDefault();
-  if (!supabase) { statusEl.textContent = "Account setup is not ready yet."; return; }
-  send.disabled = true;
-  statusEl.textContent = "Sending your secure sign-in link…";
+  if(!supabase){statusEl.textContent="Account setup is not ready yet.";return;}
+  const email=emailInput.value.trim();
+  const password=passwordInput.value;
+  submitButton.disabled=true;
+  signinMode.disabled=true;
+  signupMode.disabled=true;
+  statusEl.textContent=mode==="signin"?"Signing in…":"Creating your account…";
   try {
-    const email = document.querySelector("#email").value.trim();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: location.origin + "/login.html" }
-    });
-    if (error) throw error;
-    statusEl.textContent = "Check your inbox for the newest sign-in link. Open it in this same browser.";
-  } catch (error) {
-    statusEl.textContent = error.message || "Could not send the sign-in link.";
+    if(mode==="signup") {
+      const {data,error}=await supabase.auth.signUp({email,password});
+      if(error) throw error;
+      if(data.session) {
+        await handleSession(data.session);
+      } else {
+        statusEl.textContent="Your account was submitted, but no active session was returned. Check that Confirm email is OFF in Supabase Authentication settings, then try again.";
+      }
+    } else {
+      const {data,error}=await supabase.auth.signInWithPassword({email,password});
+      if(error) throw error;
+      if(data.session) await handleSession(data.session);
+    }
+  } catch(error) {
+    statusEl.textContent=error.message||"Could not authenticate. Please try again.";
   } finally {
-    send.disabled = false;
+    submitButton.disabled=false;
+    signinMode.disabled=false;
+    signupMode.disabled=false;
   }
 });
 
 async function handleSession(session) {
-  if (!session || !supabase) return;
-  document.querySelector("#email").value = session.user.email || "";
-  form.style.display = "none";
-  statusEl.textContent = "Signed in. Checking your workspace access…";
+  if(!session||!supabase||handlingSession)return;
+  handlingSession=true;
+  emailInput.value=session.user.email||emailInput.value;
+  form.style.display="none";
+  document.querySelector(".mode").style.display="none";
+  statusEl.textContent="Signed in. Checking your workspace access…";
   try {
-    const response = await fetch("/api/me", {
-      headers: { Authorization: "Bearer " + session.access_token },
-      cache: "no-store"
+    const response=await fetch("/api/me",{
+      headers:{Authorization:"Bearer "+session.access_token},
+      cache:"no-store"
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Could not check account access.");
-    if (data.hasAccess) {
-      location.replace("/dashboard.html");
-      return;
-    }
-    pay.style.display = "block";
-    document.querySelector("#pay-copy").textContent = "Your account is signed in, but paid access is not active for this email yet.";
-    statusEl.textContent = "Signed in, but access isn't enabled for this account. Check DEV_ACCESS_EMAILS in Vercel.";
-  } catch (error) {
-    statusEl.textContent = error.message || "Could not check account access.";
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.error||"Could not check account access.");
+    if(data.hasAccess){location.replace("/dashboard.html");return;}
+    pay.style.display="block";
+    document.querySelector("#pay-copy").textContent="Your account is signed in, but paid access is not active for this email yet.";
+    statusEl.textContent="Signed in, but access isn't enabled for this account. Check DEV_ACCESS_EMAILS in Vercel.";
+  } catch(error) {
+    statusEl.textContent=error.message||"Could not check account access.";
+    form.style.display="";
+    document.querySelector(".mode").style.display="";
+  } finally {
+    handlingSession=false;
   }
 }
 
-document.querySelector("#subscribe").addEventListener("click", async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) { statusEl.textContent = "Your session expired. Please sign in again."; return; }
-  const button = document.querySelector("#subscribe");
-  button.disabled = true;
-  statusEl.textContent = "Opening secure checkout…";
+document.querySelector("#subscribe").addEventListener("click",async()=>{
+  const {data:{session}}=await supabase.auth.getSession();
+  if(!session){statusEl.textContent="Your session expired. Please sign in again.";return;}
+  const button=document.querySelector("#subscribe");
+  button.disabled=true;
+  statusEl.textContent="Opening secure checkout…";
   try {
-    const response = await fetch("/api/stripe-checkout", {
-      method: "POST",
-      headers: { Authorization: "Bearer " + session.access_token }
+    const response=await fetch("/api/stripe-checkout",{
+      method:"POST",
+      headers:{Authorization:"Bearer "+session.access_token}
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Checkout is not ready yet.");
-    location.href = data.url;
-  } catch (error) {
-    statusEl.textContent = error.message || "Could not start checkout.";
-    button.disabled = false;
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.error||"Checkout is not ready yet.");
+    location.href=data.url;
+  } catch(error) {
+    statusEl.textContent=error.message||"Could not start checkout.";
+    button.disabled=false;
   }
 });
 </script></body></html>
