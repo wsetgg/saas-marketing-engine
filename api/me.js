@@ -25,7 +25,11 @@ export default async function handler(req, res) {
       headers: { apikey: key, Authorization: "Bearer " + key },
       signal: AbortSignal.timeout(8000)
     });
-    if (!response.ok) throw new Error("Subscription lookup failed.");
+    if (!response.ok) {
+      const details = (await response.text()).slice(0, 400);
+      console.error("Subscription lookup failed:", response.status, details);
+      return res.status(502).json({ error: "Could not check subscription status. Please try again." });
+    }
     const rows = await response.json();
     const subscription = rows[0] || null;
     const periodEnd = subscription?.current_period_end ? Date.parse(subscription.current_period_end) : 0;
@@ -38,7 +42,8 @@ export default async function handler(req, res) {
       subscriptionStatus: subscription?.status || (isDeveloper ? "developer" : "inactive"),
       currentPeriodEnd: subscription?.current_period_end || null
     });
-  } catch {
+  } catch (error) {
+    console.error("Subscription lookup error:", error?.name || "Error", error?.message || "Unknown error");
     return res.status(502).json({ error: "Could not check subscription status. Please try again." });
   }
 }
