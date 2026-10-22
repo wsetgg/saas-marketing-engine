@@ -127,27 +127,40 @@ export default async function handler(req, res) {
 
   let instruction;
   if (kind === "plan") {
-    instruction = `Create a useful, company-specific 30-day marketing plan with these sections:
-1. MARKETING DIAGNOSIS — separate supplied facts from assumptions.
-2. TARGET CUSTOMER — needs, pain points, motivations, and buying triggers; label hypotheses.
-3. POSITIONING — value proposition and 2-3 message pillars, without inventing product capabilities.
-4. CAMPAIGN STRATEGY — recommend only 2-3 focused campaigns, each with audience, message, channel, CTA, and rationale.
-5. 30-DAY PLAN — four weekly phases with concrete deliverables and bullet-point action items.
-6. MEASUREMENT — realistic KPIs and how to measure them; no guaranteed outcomes or invented benchmarks.
-7. PRIORITIES — rank actions by impact, effort, and cost.
-Be practical, specific, and concise. If information is missing, state assumptions and suggest how to validate them. Never invent company facts, testimonials, performance numbers, or market statistics.`;
+    instruction = `Write a complete, useful 30-day marketing plan for this specific business. Do not merely repeat or paraphrase the company profile or notes. Synthesize them into decisions, recommendations, and concrete next steps. The plan should be detailed enough that a founder can execute it without needing to ask what each recommendation means.
+
+Use these sections and provide meaningful detail in each:
+1. EXECUTIVE DIRECTION — a short strategic recommendation: the main audience to focus on, the core message to test, and the single highest-priority channel for the next 30 days. Explain why.
+2. MARKETING DIAGNOSIS — distinguish known facts from assumptions. Identify the 2-4 biggest likely bottlenecks and explain what evidence would confirm or disprove each one. Do not claim to have visited or reviewed the website.
+3. IDEAL CUSTOMER — define the likely buyer, their job-to-be-done, pain points, desired outcome, objections, buying triggers, and where/how to reach them. Label inferred details as hypotheses.
+4. POSITIONING AND MESSAGING — propose one clear value proposition, a headline direction, 3 message pillars, and example messaging. Never claim unprovided product features or proof.
+5. TWO OR THREE CAMPAIGNS — for each, specify target segment, problem, core message, channel, offer/content asset, CTA, step-by-step execution, why it fits this company, estimated effort/cost as qualitative low/medium/high, and what to learn. Do not suggest more than three campaigns.
+6. WEEK-BY-WEEK EXECUTION — provide Weeks 1-4 with a clear objective, specific deliverables, and actionable checklist items. Make each task start with a verb and be concrete (for example, draft a specific asset, publish a defined number of posts, configure a tracking event, or interview a defined type of prospect). Sequence dependencies realistically. Include a suggested cadence where useful.
+7. READY-TO-USE EXAMPLES — include 2 sample message angles or hooks tailored to this audience and one example CTA. Do not write a whole content calendar here; content creation is a separate feature.
+8. METRICS AND REVIEW — define a small funnel of leading and lagging indicators, what to track, where to track it, and how to review it weekly. If baseline data is missing, give a Week 1 baseline task rather than inventing numbers.
+9. PRIORITIZED ACTION LIST — rank the 5 most important actions by expected impact (high/medium/low), effort (high/medium/low), and cost (high/medium/low), with a one-sentence reason for each. Mark the first action to do today.
+10. RISKS AND VALIDATION — list the most important uncertainties and the cheapest practical way to test each.
+
+Quality rules:
+- Aim for a complete plan of roughly 1,500-2,200 words. Do not stop after the first few sections; finish every numbered section.
+- Do not restate the supplied brief as filler. Use the company context throughout the recommendations, and explain why each tactic fits this audience and goal.
+- Separate supplied facts from assumptions and hypotheses.
+- The goal is an objective, not a promised result. Do not guarantee 15 demo requests or invent conversion rates, market sizes, customer results, testimonials, or benchmarks.
+- Prefer a few well-executed actions over generic lists, jargon, or dozens of ideas.
+- If key information is missing, state the assumption briefly and recommend how to validate it; still provide a useful plan.
+- Use readable Markdown headings and actionable bullets. End with a short "Start today" checklist of no more than three actions.`;
   } else if (kind === "content") {
     instruction = `Create a ready-to-edit ${contentType || "marketing content"} draft for this company.
 Topic/campaign goal: ${topic}
 Tone: ${tone || "clear and practical"}
 Length: ${length || "Medium"}
-Adapt to the ideal customer and marketing goal. Start with the actual draft, not an explanation. Use a clear CTA when appropriate. Never invent customer testimonials, statistics, case studies, or product capabilities. If a needed fact is unknown, use a clearly marked placeholder rather than fabricating it.`;
+Adapt to the ideal customer, positioning, and marketing goal; make the draft sound like a real, specific B2B SaaS business rather than generic AI copy. Start with the finished draft, not an explanation. For long formats, include the complete requested structure and do not end mid-section. Use a clear CTA when appropriate. Never invent customer testimonials, statistics, case studies, or product capabilities. If a needed fact is unknown, use a clearly marked placeholder rather than fabricating it.`;
   } else {
     instruction = `Improve the following ${contentType || "marketing"} draft for clarity, specificity, flow, and usefulness.
 Topic/goal: ${topic || "Use the existing draft's purpose"}
 Tone: ${tone || "clear and practical"}
 Length: ${length || "Medium"}
-Return the revised draft only. Preserve factual claims only when supplied; do not add invented testimonials, statistics, or capabilities.
+Return the complete revised draft, not an explanation. Match the requested length and finish all sections or requested components. Improve substance, specificity, structure, and clarity rather than just rewording the original. Preserve factual claims only when supplied; do not add invented testimonials, statistics, or capabilities.
 DRAFT TO IMPROVE:
 ${draft}`;
   }
@@ -159,11 +172,11 @@ ${draft}`;
       headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: kind === "plan" ? 1700 : 1000,
+        max_tokens: kind === "plan" ? 4500 : 1800,
         system,
         messages: [{ role: "user", content: companyContext + "\n\n" + instruction }]
       }),
-      signal: AbortSignal.timeout(25000)
+      signal: AbortSignal.timeout(45000)
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
