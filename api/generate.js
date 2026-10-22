@@ -77,7 +77,7 @@ export default async function handler(req, res) {
 
   if (!["plan", "content", "improve"].includes(kind)) return res.status(400).json({ error: "Unknown generation type." });
   if (!company || !goal) return res.status(400).json({ error: "Save a company name and marketing goal before generating." });
-  if (kind !== "plan" && !topic && !(kind === "improve" && draft) && !(kind === "content" && contentType === "Ad creative")) return res.status(400).json({ error: "Add a topic or draft first." });
+  if (kind !== "plan" && !topic && !(kind === "improve" && draft) && !(kind === "content" && ["Ad creative", "Campaign kit"].includes(contentType))) return res.status(400).json({ error: "Add a topic or draft first." });
   if (kind === "improve" && !draft) return res.status(400).json({ error: "Add a draft to improve." });
 
   const url = process.env.SUPABASE_URL;
@@ -169,7 +169,24 @@ Rules:
 - Do not claim to have browsed the website, researched competitors, or checked analytics.
 - Label unverified audience behavior as a hypothesis; give a low-cost way to validate it.
 - Never fabricate facts, benchmarks, customer evidence, or guaranteed outcomes.`;  } else if (kind === "content") {
-    instruction = `Create one practical, ready-to-use marketing asset for this company.
+    if (contentType === "Campaign kit") {
+      instruction = `Build a coordinated, practical campaign kit for this business. This is the product's core deliverable: help a small team move from goal to launch without hiring an agency.
+Campaign name or topic: ${topic || "Not provided. Choose the strongest realistic campaign angle from the company profile, audience, goal, and notes. Do not ask follow-up questions."}
+Tone: ${tone || "Clear and practical"}
+Length: ${length || "Medium"}
+
+Return exactly these sections in Markdown:
+1. **Campaign strategy:** one-sentence objective, specific audience, buyer problem, core message, offer/CTA, primary channel, and why this is a sensible low-cost test. Label assumptions.
+2. **Landing-page message:** headline, supporting sentence, 3 benefit bullets grounded in the supplied facts, and CTA.
+3. **Three social posts:** each with a different hook and purpose; make them ready to publish and include a natural CTA.
+4. **One follow-up email:** subject line, preview text, complete concise email, and CTA.
+5. **One text ad:** 3 headline options, primary copy, and CTA. No image or video concepts.
+6. **7-day launch checklist:** 5–7 concrete actions in order, each with a deliverable and a simple success signal.
+7. **What to measure:** 3 metrics, where the user can check them manually, and what to change if results are weak.
+
+Keep the kit focused enough for one person to launch in a week. Use one primary channel and no more than one supporting channel. Do not suggest running every channel at once. Do not invent product features, prices, testimonials, customer results, statistics, or competitor research. If the business has no defined offer or proof, recommend a small validation step rather than fabricating one. Avoid generic filler; make the assets specific to the company and buyer. Do not claim that anything was published, tracked, or verified.`;
+    } else {
+      instruction = `Create one practical, ready-to-use marketing asset for this company.
 Asset type: ${contentType || "Marketing content"}
 ${contentType === "Ad creative" ? "Format: text ad copy only. Intended platform/placement: " + (adPlatform || "Choose the best fit for this audience") : ""}
 Topic/campaign goal: ${topic || (contentType === "Ad creative" ? "Not provided. Automatically choose a strong ad angle using the company name, ideal customer, marketing goal, website field, and notes below. Do not ask follow-up questions." : "")}
@@ -177,7 +194,9 @@ Tone: ${tone || "Clear and practical"}
 Length: ${length || "Medium"}
 
 For social posts, write one polished post with a strong hook, useful substance, and a natural CTA. For email, write a subject line and complete email. For landing-page copy, provide a headline, supporting copy, benefits, and CTA. For blog/SEO content, provide a useful outline or draft with clear headings. For ad creative, provide: target audience, primary ad copy, 3 headline options, CTA, and one low-cost A/B test suggestion. Keep all outputs text-only; do not offer image/video generation, storyboards, or media prompts.
-Use the supplied company profile and notes as the brief. Make the asset specific to the actual product/service, buyer problem, and goal. Start with the finished asset, not an explanation. Never invent testimonials, statistics, case studies, product capabilities, or guaranteed results. Mark unknown facts as placeholders. Avoid generic filler and make every line usable without extensive editing.`;  } else {
+Use the supplied company profile and notes as the brief. Make the asset specific to the actual product/service, buyer problem, and goal. Start with the finished asset, not an explanation. Never invent testimonials, statistics, case studies, product capabilities, or guaranteed results. Mark unknown facts as placeholders. Avoid generic filler and make every line usable without extensive editing.`;
+    }
+  } else {
     instruction = `Improve the following ${contentType || "marketing"} draft for clarity, specificity, flow, and usefulness.\nAd format: ${creativeFormat || "Not applicable"}. For image/video ad concepts, preserve the production-ready visual brief and generation prompt; do not claim an actual media file was rendered.
 Topic/goal: ${topic || "Use the existing draft's purpose"}
 Tone: ${tone || "clear and practical"}
