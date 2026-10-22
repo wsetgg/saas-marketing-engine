@@ -4,7 +4,7 @@
 :root{--paper:#f7f7f2;--ink:#17241e;--muted:#65716a;--line:#e1e5dc;--green:#315d43;--soft:#edf1e8}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--paper);color:var(--ink);font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;padding:24px}.card{width:min(100%,440px);background:#fff;border:1px solid var(--line);border-radius:20px;padding:34px;box-shadow:0 20px 60px #17241e0d}.brand{font-weight:800;letter-spacing:-.04em;font-size:1.2rem;display:flex;align-items:center;gap:9px}.mark{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--green);color:#fff}h1{font:400 2.4rem/1.08 Georgia,serif;letter-spacing:-.05em;margin:29px 0 10px}p{color:var(--muted);margin:0 0 22px}.label{font-size:.82rem;font-weight:650;display:block;margin:14px 0 7px}input{width:100%;padding:13px 14px;border:1px solid #cfd6ca;border-radius:10px;font:inherit;outline-color:var(--green)}button,.button{width:100%;display:flex;justify-content:center;align-items:center;margin-top:12px;border:1px solid var(--green);border-radius:999px;padding:13px 18px;background:var(--green);color:#fff;font:inherit;font-weight:650;cursor:pointer;text-decoration:none}button:disabled{opacity:.6;cursor:wait}.secondary{background:#fff;color:var(--ink);border-color:var(--line)}.mode{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:22px 0}.mode button{margin:0}.mode button[aria-pressed="false"]{background:#fff;color:var(--ink);border-color:var(--line)}.status{font-size:.88rem;margin-top:16px;min-height:24px;color:var(--green);overflow-wrap:anywhere}.fine{font-size:.76rem;margin-top:22px;margin-bottom:0}.back{display:inline-block;color:var(--muted);font-size:.85rem;margin-top:18px}#pay{display:none}
 </style></head><body><main class="card"><a class="brand" href="index.html" style="text-decoration:none;color:inherit"><span class="mark">g</span>growthdesk</a><h1 id="heading">Your workspace, ready when you are.</h1><p id="intro">Sign in with your email and password, or create an account to get started.</p>
 <div class="mode" role="group" aria-label="Account action"><button id="signin-mode" type="button" aria-pressed="true">Sign in</button><button id="signup-mode" type="button" aria-pressed="false">Create account</button></div>
-<form id="login-form"><label class="label" for="email">Email</label><input id="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@company.com"><label class="label" for="password">Password</label><input id="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="At least 8 characters"><button id="submit" type="submit">Sign in</button></form>
+<form id="login-form"><label class="label" id="email-label" for="email">Email</label><input id="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@company.com"><label class="label" id="password-label" for="password">Password</label><input id="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="At least 8 characters"><button id="submit" type="submit">Sign in</button></form><button id="forgot-password" class="secondary" type="button">Forgot password?</button>
 <div id="status" class="status" role="status" aria-live="polite"></div><section id="pay"><p id="pay-copy"></p><button id="subscribe" type="button">Continue to secure checkout</button></section>
 <p class="fine">This early version is in testing. No real payment is taken until checkout is configured for live mode.</p><a class="back" href="index.html">← Back to Growthdesk</a></main>
 <script type="module">
@@ -20,6 +20,7 @@ const signupMode=document.querySelector("#signup-mode");
 let supabase;
 let mode="signin";
 let handlingSession=false;
+let recoveryMode=new URLSearchParams(location.search).get("mode")==="recovery";
 
 function setMode(nextMode) {
   mode=nextMode;
@@ -32,6 +33,7 @@ function setMode(nextMode) {
   document.querySelector("#intro").textContent=signingIn?"Sign in with your email and password to open your workspace.":"Create an account with an email and password. No confirmation email is required while email confirmation is disabled.";
   statusEl.textContent="";
   pay.style.display="none";
+  document.querySelector("#forgot-password").style.display=signingIn?"":"none";
 }
 signinMode.addEventListener("click",()=>setMode("signin"));
 signupMode.addEventListener("click",()=>setMode("signup"));
@@ -43,12 +45,30 @@ try {
   supabase=createClient(config.supabaseUrl,config.supabaseAnonKey,{
     auth:{flowType:"pkce",detectSessionInUrl:false,persistSession:true,autoRefreshToken:true}
   });
-  const {data,error}=await supabase.auth.getSession();
-  if(error) throw error;
-  if(data.session) await handleSession(data.session);
   supabase.auth.onAuthStateChange((event,session)=>{
+    if(recoveryMode && session && (event==="PASSWORD_RECOVERY"||event==="SIGNED_IN")) {
+      showPasswordReset(session);
+      return;
+    }
     if(event==="SIGNED_IN"&&session) void handleSession(session);
   });
+  if(recoveryMode) {
+    const code=new URLSearchParams(location.search).get("code");
+    if(code) {
+      const {data,error}=await supabase.auth.exchangeCodeForSession(code);
+      if(error) throw new Error("This recovery link is invalid or expired. Please request a new password reset email.");
+      if(data.session) showPasswordReset(data.session);
+      history.replaceState({},document.title,location.pathname+"?mode=recovery");
+    } else {
+      const {data}=await supabase.auth.getSession();
+      if(data.session) showPasswordReset(data.session);
+      else showRecoveryError("This recovery link is missing or expired. Please request a new password reset email.");
+    }
+  } else {
+    const {data,error}=await supabase.auth.getSession();
+    if(error) throw error;
+    if(data.session) await handleSession(data.session);
+  }
 } catch(error) {
   statusEl.textContent=error.message||"Account setup is not ready yet.";
 }
@@ -61,9 +81,24 @@ form.addEventListener("submit",async event=>{
   submitButton.disabled=true;
   signinMode.disabled=true;
   signupMode.disabled=true;
-  statusEl.textContent=mode==="signin"?"Signing in…":"Creating your account…";
+  statusEl.textContent=recoveryMode?"Updating your password…":(mode==="signin"?"Signing in…":"Creating your account…");
   try {
-    if(mode==="signup") {
+    if(recoveryMode) {
+      const {error}=await supabase.auth.updateUser({password});
+      if(error) throw error;
+      recoveryMode=false;
+      history.replaceState({},document.title,location.pathname);
+      setMode("signin");
+      passwordInput.value="";
+      document.querySelector("#email-label").style.display="";
+      emailInput.style.display="";
+      statusEl.textContent="Password updated. You can now sign in with your new password.";
+      form.style.display="";
+      document.querySelector(".mode").style.display="";
+      document.querySelector("#forgot-password").style.display="";
+      document.querySelector("#heading").textContent="Password updated.";
+      document.querySelector("#intro").textContent="Sign in with your new password to open your workspace.";
+    } else if(mode==="signup") {
       const {data,error}=await supabase.auth.signUp({email,password});
       if(error) throw error;
       if(data.session) {
@@ -84,6 +119,63 @@ form.addEventListener("submit",async event=>{
     signupMode.disabled=false;
   }
 });
+
+
+document.querySelector("#forgot-password").addEventListener("click",async()=>{
+  if(!supabase){statusEl.textContent="Account setup is not ready yet.";return;}
+  const email=emailInput.value.trim();
+  if(!email){statusEl.textContent="Enter your email address first, then select Forgot password.";emailInput.focus();return;}
+  const button=document.querySelector("#forgot-password");
+  button.disabled=true;
+  statusEl.textContent="Sending password reset email…";
+  try {
+    const {error}=await supabase.auth.resetPasswordForEmail(email,{
+      redirectTo:location.origin+"/login.html?mode=recovery"
+    });
+    if(error) throw error;
+    statusEl.textContent="If an account exists for that email, a password reset link has been sent. Check your inbox and spam folder.";
+  } catch(error) {
+    statusEl.textContent=error.message||"Could not send a password reset email.";
+  } finally {
+    button.disabled=false;
+  }
+});
+
+function showPasswordReset(session) {
+  recoveryMode=true;
+  mode="recovery";
+  document.querySelector(".mode").style.display="none";
+  document.querySelector("#forgot-password").style.display="none";
+  document.querySelector("#heading").textContent="Choose a new password.";
+  document.querySelector("#intro").textContent="Set a new password for your existing Growthdesk account.";
+  emailInput.value=session.user.email||emailInput.value;
+  document.querySelector("#email-label").style.display="none";
+  emailInput.style.display="none";
+  document.querySelector("#password-label").textContent="New password";
+  passwordInput.value="";
+  passwordInput.autocomplete="new-password";
+  passwordInput.placeholder="At least 8 characters";
+  submitButton.textContent="Update password";
+  form.style.display="";
+  pay.style.display="none";
+  statusEl.textContent="Choose a new password with at least 8 characters.";
+}
+
+function showRecoveryError(message) {
+  recoveryMode=true;
+  document.querySelector(".mode").style.display="none";
+  form.style.display="none";
+  document.querySelector("#forgot-password").style.display="none";
+  document.querySelector("#heading").textContent="Request a new reset link.";
+  document.querySelector("#intro").textContent="This recovery link could not be used.";
+  statusEl.textContent=message;
+  const retry=document.createElement("button");
+  retry.type="button";
+  retry.textContent="Back to sign in";
+  retry.className="secondary";
+  retry.addEventListener("click",()=>location.href="/login.html");
+  statusEl.after(retry);
+}
 
 async function handleSession(session) {
   if(!session||!supabase||handlingSession)return;
