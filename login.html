@@ -19,7 +19,7 @@ try {
   const config = await configResponse.json();
   if (!configResponse.ok) throw new Error(config.error || "Account setup is not ready yet.");
   supabase = createClient(config.supabaseUrl, config.supabaseAnonKey, {
-    auth: { flowType: "pkce", detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
+    auth: { flowType: "pkce", detectSessionInUrl: false, persistSession: true, autoRefreshToken: true }
   });
 
   // Explicitly exchange Supabase's PKCE callback code before looking for a session.
