@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   const devEmails = (process.env.DEV_ACCESS_EMAILS || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
   const isDeveloper = devEmails.includes(auth.user.email.toLowerCase());
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = process.env.SUPABASE_ANON_KEY;
   if (!url || !key) return res.status(503).json({ error: "Subscription storage is not configured yet." });
 
   try {
@@ -21,8 +21,10 @@ export default async function handler(req, res) {
       user_id: "eq." + auth.user.id,
       limit: "1"
     });
+    // Use the signed-in user's access token so Supabase RLS limits the query
+    // to that user's own subscription row. No service-role key is needed here.
     const response = await fetch(url.replace(/\/$/, "") + "/rest/v1/subscriptions?" + query.toString(), {
-      headers: { apikey: key, Authorization: "Bearer " + key },
+      headers: { apikey: key, Authorization: "Bearer " + auth.accessToken },
       signal: AbortSignal.timeout(8000)
     });
     if (!response.ok) {
