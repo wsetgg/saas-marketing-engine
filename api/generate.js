@@ -80,41 +80,18 @@ export default async function handler(req, res) {
   if (kind !== "plan" && !topic && !(kind === "improve" && draft) && !(kind === "content" && ["Ad creative", "Campaign kit"].includes(contentType))) return res.status(400).json({ error: "Add a topic or draft first." });
   if (kind === "improve" && !draft) return res.status(400).json({ error: "Add a draft to improve." });
 
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_ANON_KEY;
-  if (url && key) {
-    try {
-      const q = new URLSearchParams({
-        select: "id",
-        user_id: "eq." + auth.user.id,
-        created_at: "gt." + new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-        limit: String(MAX_GENERATIONS_PER_HOUR)
-      });
-      const usage = await fetch(url.replace(/\/$/, "") + "/rest/v1/growthdesk_items?" + q, {
-        headers: { apikey: key, Authorization: "Bearer " + auth.accessToken },
-        signal: AbortSignal.timeout(5000)
-      });
-      if (usage.ok) {
-        const rows = await usage.json();
-        if (rows.length >= MAX_GENERATIONS_PER_HOUR) {
-          return res.status(429).json({ error: "You've reached the current limit of 12 generations per hour. Revisit saved work or try again later." });
-        }
-      } else if (usage.status !== 404) {
-        console.error("Generation usage check failed", usage.status);
-      }
-    } catch (error) {
-      console.error("Generation usage check failed", error?.name || "Error");
+  // The previous limiter counted saved workspace items, not actual generations.
+  // That could block users simply for saving drafts. Keep a lightweight in-memory
+  // safety limit for normal accounts; developer accounts can test without it.
+  if (!isDeveloper) {
+    const now = Date.now();
+    const previous = (recentRequests.get(auth.user.id) || []).filter(ts => now - ts < 60 * 60 * 1000);
+    if (previous.length >= MAX_GENERATIONS_PER_HOUR) {
+      return res.status(429).json({ error: "You've reached the current generation limit of 12 per hour. Please try again later." });
     }
+    previous.push(now);
+    recentRequests.set(auth.user.id, previous);
   }
-
-  // Best-effort per-user limiter for serverless instances; the saved-item count above adds a second guard.
-  const now = Date.now();
-  const previous = (recentRequests.get(auth.user.id) || []).filter(ts => now - ts < 60 * 60 * 1000);
-  if (previous.length >= 6) {
-    return res.status(429).json({ error: "You've reached the current generation limit. Please wait before generating more content." });
-  }
-  previous.push(now);
-  recentRequests.set(auth.user.id, previous);
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(503).json({ error: "Server setup incomplete: ANTHROPIC_API_KEY is missing." });
