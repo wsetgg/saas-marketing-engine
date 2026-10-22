@@ -171,8 +171,8 @@ Rules:
     const isVisualAd = contentType === "Ad creative" && adFormat !== "Text ad";
     instruction = `Create one practical, campaign-ready asset for this company.
 Asset type: ${contentType || "Marketing content"}
-${contentType === "Ad creative" ? "Ad format: " + adFormat : ""}
-Topic/campaign goal: ${topic}
+${contentType === "Ad creative" ? "Ad format: " + adFormat + "\nIntended platform/placement: " + (adPlatform || "Choose the best fit for this audience") : ""}
+Topic/campaign goal: ${topic || (contentType === "Ad creative" ? "Not provided. Automatically choose a strong ad angle using the company name, ideal customer, marketing goal, website field, and notes below. Do not ask follow-up questions." : "")}
 Tone: ${tone || "Clear and practical"}
 Length: ${length || "Medium"}
 
