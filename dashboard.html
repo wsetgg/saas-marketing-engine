@@ -15,7 +15,47 @@ async function apiMe(){const r=await fetch("/api/me",{headers:{Authorization:"Be
 function showStatus(id,msg){$(id).textContent=msg;}
 try{const cRes=await fetch("/api/config");const c=await cRes.json();if(!cRes.ok)throw new Error(c.error||"Account setup is not ready.");supabase=createClient(c.supabaseUrl,c.supabaseAnonKey);const {data,error}=await supabase.auth.getSession();if(error)throw error;session=data.session;if(!session){location.href="login.html";}else{await loadWorkspace();}}catch(e){$("#access-note").textContent=e.message||"Could not load your workspace.";}
 async function loadWorkspace(){try{access=await apiMe();$("#email-label").textContent=session.user.email||"";if(!access.hasAccess){$("#access-note").textContent="You're signed in, but this account doesn't currently have paid access.";$("#locked").style.display="block";return;}$("#access-note").textContent=access.developerAccess?"Developer access is enabled for testing. No payment is required for this account.":"Your subscription is active. Your workspace is ready.";$("#locked").style.display="none";$("#workspace").style.display="grid";$("#plan-badge").textContent=access.developerAccess?"Developer test access":"Subscription active";$("#plan-text").textContent=access.developerAccess?"This account has private developer access for testing.":"Your account is linked to your subscription. You can manage billing below.";await loadSavedData();}catch(e){$("#access-note").textContent=e.message||"Could not check access.";}}
-async function loadSavedData(){const {data,error}=await supabase.from("workspace_data").select("company_name,workspace_json").eq("user_id",session.user.id).maybeSingle();if(error){showStatus("#save-status","Could not load saved details. Check the database setup.");return;}if(!data)return;const w=data.workspace_json||{};$("#company").value=data.company_name||"";$("#website").value=w.website||"";$("#customer").value=w.customer||"";$("#goal").value=w.goal||"";$("#notes").value=w.notes||"";}
+async function loadSavedData(){
+  const {data,error}=await supabase.from("workspace_data").select("company_name,workspace_json").eq("user_id",session.user.id).maybeSingle();
+  if(error){showStatus("#save-status","Could not load saved details. Check the database setup.");return;}
+  if(!data && access?.developerAccess){
+    // Seed clearly fictional demo content for the developer's empty workspace only.
+    // Normal new customer accounts remain empty and are never populated with fake data.
+    const demo={
+      company_name:"Northstar Metrics (Demo)",
+      workspace_json:{
+        website:"https://northstar-metrics.example",
+        customer:"Small B2B SaaS companies with 2–20 employees. Usually a founder or lean marketing team that needs a steady pipeline but doesn't have time for a full content team. They care about qualified demos, clear ROI, and practical advice rather than generic marketing tips.",
+        goal:"Generate 15 qualified demo requests over the next 30 days by publishing useful founder-led content, improving the homepage conversion path, and running one focused email campaign.",
+        notes:"FICTIONAL DEMO WORKSPACE — Northstar Metrics is not a real company.\n\nPOSITIONING: Simple revenue analytics for small SaaS teams that want to understand which marketing channels create paying customers.\n\nCAMPAIGN 1 — Founder LinkedIn series: 3 posts per week sharing practical lessons on SaaS metrics, attribution mistakes, and improving trial-to-paid conversion. CTA: download the sample metrics checklist.\n\nCAMPAIGN 2 — Lead magnet: Create a one-page 'SaaS Marketing Metrics Starter Sheet' and offer it on the homepage in exchange for an email address.\n\nCAMPAIGN 3 — Email nurture: Send a 3-email sequence to new subscribers: (1) the most common attribution mistake, (2) a simple channel ROI example, (3) invitation to book a 15-minute product walkthrough.\n\nTHIS WEEK: Draft 3 LinkedIn posts; outline the metrics starter sheet; review homepage CTA; write email 1; track visits, email signups, and demo requests."
+      }
+    };
+    $("#company").value=demo.company_name;
+    $("#website").value=demo.workspace_json.website;
+    $("#customer").value=demo.workspace_json.customer;
+    $("#goal").value=demo.workspace_json.goal;
+    $("#notes").value=demo.workspace_json.notes;
+    const {error:saveError}=await supabase.from("workspace_data").upsert({
+      user_id:session.user.id,
+      company_name:demo.company_name,
+      workspace_json:demo.workspace_json,
+      updated_at:new Date().toISOString()
+    },{onConflict:"user_id"});
+    if(saveError){
+      showStatus("#save-status","Demo details loaded in the form, but couldn't save them yet.");
+    }else{
+      showStatus("#save-status","Fictional demo company loaded and saved to your developer workspace. You can edit or replace it anytime.");
+    }
+    return;
+  }
+  if(!data)return;
+  const w=data.workspace_json||{};
+  $("#company").value=data.company_name||"";
+  $("#website").value=w.website||"";
+  $("#customer").value=w.customer||"";
+  $("#goal").value=w.goal||"";
+  $("#notes").value=w.notes||"";
+}
 async function saveData(statusId){showStatus(statusId,"Saving…");const company=$("#company").value.trim();const workspace_json={website:$("#website").value.trim(),customer:$("#customer").value.trim(),goal:$("#goal").value.trim(),notes:$("#notes").value.trim()};const {error}=await supabase.from("workspace_data").upsert({user_id:session.user.id,company_name:company,workspace_json,updated_at:new Date().toISOString()},{onConflict:"user_id"});showStatus(statusId,error?"Couldn't save yet. Check the Supabase table and security policies.":"Saved to your account.");}
 $("#save").addEventListener("click",()=>saveData("#save-status"));$("#save-notes").addEventListener("click",()=>saveData("#notes-status"));
 $("#signout").addEventListener("click",async()=>{if(supabase)await supabase.auth.signOut();location.href="index.html";});
