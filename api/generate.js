@@ -127,38 +127,44 @@ export default async function handler(req, res) {
 
   let instruction;
   if (kind === "plan") {
-    instruction = `Create a SIMPLE, DIRECT 30-day marketing action plan for this specific business. The user should finish reading and know exactly what to do next. Do not write a long marketing report, repeat the company brief, or overwhelm them with options.
+    instruction = `Build a practical, customer-specific marketing dashboard plan for this business. The plan must help the owner decide what to do next, not read like a generic marketing article. Use the supplied ideal customer and business goal throughout.
 
-Return ONLY these 5 sections, using clear Markdown headings:
+Return these sections with these exact Markdown headings so the app can display them as dashboard cards:
+
+# Customer snapshot
+Identify the specific buyer/user described in the brief, their likely day-to-day problem, the outcome they want, what may stop them from buying, and the event that might make them look for a solution now. Distinguish supplied facts from hypotheses. If the audience description is too broad, narrow it to one testable initial segment and explain why.
 
 # The goal
-In 1-2 sentences, state the main outcome to pursue and the single strategy you recommend. Do not promise results. If the target seems unsupported by data, say what needs checking first.
+State one measurable 30-day objective and the single main strategy you recommend. Connect the strategy directly to the customer's problem and the company's stated goal. Pick one primary acquisition channel and at most one supporting channel. Explain why these are the best initial channels for this audience, while acknowledging missing evidence.
 
 # Do these 3 things first
-Choose exactly three high-priority actions, in order. For each, use this format:
-- **Action:** Start with a clear verb and say exactly what to do.
-- **How:** Give 2-4 practical steps, specific to this company.
-- **Deliverable:** State what should exist when the action is finished.
-- **When:** Give a realistic day or deadline.
-- **Success check:** Name one measurable signal to watch.
+Give exactly three prioritized actions. For each include:
+- **Action:** one direct, verb-led instruction.
+- **Target customer:** who this is for, as specifically as the supplied evidence allows.
+- **How:** 2-4 numbered practical steps, including what to write/build/send, where to publish it, and what CTA to use.
+- **Deliverable:** the concrete finished asset or result.
+- **When:** a realistic deadline in days.
+- **Success check:** a measurable signal to inspect.
+Avoid advice such as "build awareness" unless you say exactly how.
 
-# Your 30-day schedule
-Break the month into Week 1, Week 2, Week 3, and Week 4. Give each week one main outcome and 3-5 concrete checklist items. Each item must start with a verb and describe a visible task, such as "Write three LinkedIn posts about X" or "Ask five target customers how they currently solve Y." Avoid vague items like "improve marketing," "build awareness," or "optimize the funnel." Keep the workload realistic for one person.
+# 30-day execution dashboard
+Split the month into Week 1, Week 2, Week 3, and Week 4. For each week provide one outcome, 3-5 short checklist items, and a clear deliverable. Tasks must be achievable for a small team or solo founder. Sequence research before spending money or scaling a campaign. Use actual audience language and relevant use cases from the supplied brief; do not invent customer quotes or research findings.
 
-# Use this message
-Provide one short positioning statement, one headline, one example post or outreach message tailored to the stated audience, and one clear call to action. Do not invent product features, customer results, testimonials, statistics, or integrations.
+# Messaging to test
+Provide one concise positioning statement, one homepage headline, one example post or direct outreach message aimed at the target buyer, and one CTA. Tie the message to a concrete pain point or desired outcome from the brief. Do not invent features, integrations, case studies, customer results, testimonials, or statistics.
 
-# Track these numbers
-Choose only 3-5 metrics tied directly to the goal. For each, say where to find it and what action to take if the number is weak. If baseline data is missing, make collecting it the first task; do not invent benchmarks.
+# Performance scorecard
+Choose only 3-5 metrics that map to the stated goal. For each say what it measures, where the user can find/record it, and what to change if it is weak. Do not invent target benchmarks or conversion rates. If no baseline exists, make recording a baseline part of Week 1.
 
 Quality rules:
-- Aim for 500-800 words maximum. Prefer short bullets and direct instructions over paragraphs.
-- Prioritize one main channel and one supporting tactic. Do not propose a long list of campaigns.
-- Be concrete: name the asset to create, who it is for, where to publish/send it, and the next step.
-- Use the supplied company details throughout. Treat missing details as assumptions and briefly say how to verify them.
-- Do not claim to have visited the website or checked analytics.
-- Make every recommendation answer: "What exactly should I do?"
-- Finish with a short **Start today** checklist of exactly 3 actions.`;
+- Keep the plan between 500 and 850 words. Use short bullets, compact checklists, and direct language.
+- Every recommendation must specify who it is for, what to do, and the expected deliverable.
+- Use one primary customer segment and one primary channel; don't present a buffet of strategies.
+- Use company notes as context, but do not blindly repeat them. Improve them with prioritization and explain the reasoning.
+- Do not claim to have browsed the website, checked analytics, researched competitors, or verified customer behavior.
+- If critical information is missing, label it as a hypothesis and give a cheap way to validate it before committing budget.
+- Don't guarantee the goal will be achieved. Do not fabricate market sizes, benchmarks, competitor facts, or customer evidence.
+- Finish with **Start today** and exactly three actions.`;
   } else if (kind === "content") {
     instruction = `Create a ready-to-edit ${contentType || "marketing content"} draft for this company.
 Topic/campaign goal: ${topic}
