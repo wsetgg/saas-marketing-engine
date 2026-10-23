@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       include_granted_scopes: "true",
       state
     });
-    return res.redirect(302, "https://accounts.google.com/o/oauth2/v2/auth?" + params.toString());
+    return res.status(200).json({ authorizationUrl: "https://accounts.google.com/o/oauth2/v2/auth?" + params.toString() });
   } catch (error) {
     console.error("GA4 OAuth initiation failed", error.message);
     return res.status(503).json({ error: "Could not start Google Analytics authorization." });
