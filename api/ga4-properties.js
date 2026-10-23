@@ -32,8 +32,6 @@ export default async function handler(req, res) {
       const connection = await getConnection(auth.user.id);
       if (!connection) return res.status(400).json({ error: "Connect Google Analytics first." });
       const access = await exchangeRefreshToken(decryptToken(connection.encrypted_refresh_token));
-      const check = await googleGet("https://analyticsdata.googleapis.com/v1beta/properties/" + propertyId + ":runReport", access);
-      void check;
       const response = await googleGet("https://analyticsadmin.googleapis.com/v1beta/properties/" + propertyId, access);
       const name = String(response.displayName || "Google Analytics property").slice(0, 200);
       await dbRequest("ga4_connections?user_id=eq." + encodeURIComponent(auth.user.id), {
