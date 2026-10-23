@@ -1,9 +1,8 @@
 import { getAuthenticatedUser } from "../lib/auth.js";
+import { consumeRateLimit } from "../lib/usage-limit.js";
 
 const MODEL = "claude-haiku-5-5";
 const MAX_BODY_CHARS = 32000;
-const MAX_GENERATIONS_PER_HOUR = 12;
-const recentRequests = new Map();
 
 function clean(value, limit) {
   return typeof value === "string" ? value.trim().slice(0, limit) : "";
@@ -80,17 +79,22 @@ export default async function handler(req, res) {
   if (kind !== "plan" && !topic && !(kind === "improve" && draft) && !(kind === "content" && ["Ad creative", "Campaign kit"].includes(contentType))) return res.status(400).json({ error: "Add a topic or draft first." });
   if (kind === "improve" && !draft) return res.status(400).json({ error: "Add a draft to improve." });
 
-  // The previous limiter counted saved workspace items, not actual generations.
-  // That could block users simply for saving drafts. Keep a lightweight in-memory
-  // safety limit for normal accounts; developer accounts can test without it.
+  // Enforce a shared server-side limit. In-memory limits are unreliable on serverless.
   if (!isDeveloper) {
-    const now = Date.now();
-    const previous = (recentRequests.get(auth.user.id) || []).filter(ts => now - ts < 60 * 60 * 1000);
-    if (previous.length >= MAX_GENERATIONS_PER_HOUR) {
-      return res.status(429).json({ error: "You've reached the current generation limit of 12 per hour. Please try again later." });
+    try {
+      const allowed = await consumeRateLimit({
+        userId: auth.user.id,
+        action: "generation",
+        limit: 12,
+        windowSeconds: 3600
+      });
+      if (!allowed) {
+        return res.status(429).json({ error: "You've reached the current generation limit of 12 per hour. Please try again later." });
+      }
+    } catch (error) {
+      console.error("Generation rate limit check failed", error?.message || "unknown error");
+      return res.status(503).json({ error: "Usage protection is temporarily unavailable. Please try again later." });
     }
-    previous.push(now);
-    recentRequests.set(auth.user.id, previous);
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
