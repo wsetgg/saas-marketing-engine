@@ -1,4 +1,4 @@
-import { dbRequest, getAuthenticatedUser } from "../lib/ga4.js";
+import { dbRequest, getAuthenticatedUser, workspaceAccess } from "../lib/ga4.js";
 
 function clean(value, max) { return typeof value === "string" ? value.trim().slice(0, max) : ""; }
 
@@ -6,6 +6,10 @@ export default async function handler(req, res) {
   res.setHeader("Cache-Control", "private, no-store");
   const auth = await getAuthenticatedUser(req);
   if (auth.error) return res.status(auth.status).json({ error: auth.error });
+  let hasAccess;
+  try { hasAccess = await workspaceAccess(auth); }
+  catch (error) { return res.status(502).json({ error: error.message }); }
+  if (!hasAccess) return res.status(403).json({ error: "An active Growthdesk subscription is required for acquisition analytics." });
   const userId = auth.user.id;
   if (req.method === "GET") {
     try {
