@@ -1,4 +1,4 @@
-import { decryptToken, exchangeRefreshToken, getAuthenticatedUser, getConnection, googleGet } from "../lib/ga4.js";
+import { decryptToken, exchangeRefreshToken, getAuthenticatedUser, getConnection, googleGet, workspaceAccess } from "../lib/ga4.js";
 
 function dateDaysAgo(days) {
   const d = new Date();
@@ -44,6 +44,10 @@ export default async function handler(req, res) {
   }
   const auth = await getAuthenticatedUser(req);
   if (auth.error) return res.status(auth.status).json({ error: auth.error });
+  let hasAccess;
+  try { hasAccess = await workspaceAccess(auth); }
+  catch (error) { return res.status(502).json({ error: error.message }); }
+  if (!hasAccess) return res.status(403).json({ error: "An active Growthdesk subscription is required for acquisition analytics." });
   try {
     const connection = await getConnection(auth.user.id);
     if (!connection?.property_id) return res.status(400).json({ error: "Connect Google Analytics and select a property first." });
