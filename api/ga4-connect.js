@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { getAuthenticatedUser, signState, redirectUri } from "../lib/ga4.js";
+import { getAuthenticatedUser, signState, redirectUri, workspaceAccess } from "../lib/ga4.js";
 
 function setCookie(res, name, value) {
   res.setHeader("Set-Cookie", name + "=" + encodeURIComponent(value) + "; HttpOnly; Secure; SameSite=Lax; Path=/api/ga4-callback; Max-Age=600");
@@ -13,6 +13,10 @@ export default async function handler(req, res) {
   }
   const auth = await getAuthenticatedUser(req);
   if (auth.error) return res.status(auth.status).json({ error: auth.error });
+  let hasAccess;
+  try { hasAccess = await workspaceAccess(auth); }
+  catch (error) { return res.status(502).json({ error: error.message }); }
+  if (!hasAccess) return res.status(403).json({ error: "An active Growthdesk subscription is required for acquisition analytics." });
   if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET ||
       !process.env.GA4_OAUTH_STATE_SECRET || !process.env.GA4_TOKEN_ENCRYPTION_KEY ||
       !process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.APP_URL) {
