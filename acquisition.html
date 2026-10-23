@@ -28,7 +28,7 @@ async function api(path, options={}) {
 }
 async function init() {
   try {
-    const configResponse = await fetch("/api/public-config");
+    const configResponse = await fetch("/api/config");
     const config = await configResponse.json();
     if (!config.supabaseUrl || !config.supabaseAnonKey) throw new Error("Sign-in is not configured.");
     supabase = createClient(config.supabaseUrl,config.supabaseAnonKey);
@@ -81,7 +81,7 @@ async function loadExperiments() {
   if (!data.experiments.length) { root.innerHTML='<p class="muted">No experiments yet. Record your first hypothesis above.</p>'; return; }
   root.innerHTML=data.experiments.map(e=>'<div class="experiment"><div class="row"><strong>'+safe(e.title)+'</strong><span class="pill">'+safe(e.status)+'</span></div><p class="muted" style="margin:4px 0">'+safe(e.channel)+' · Metric: '+safe(e.metric)+'</p><p style="margin:4px 0">'+safe(e.hypothesis)+'</p>'+(e.notes?'<p class="muted" style="margin:4px 0">'+safe(e.notes)+'</p>':"")+'</div>').join("");
 }
-$("#connect").addEventListener("click",()=>{location.href="/api/ga4-connect?token="+encodeURIComponent(session.access_token);});
+$("#connect").addEventListener("click",async()=>{const button=$("#connect");button.disabled=true;try{const data=await api("/api/ga4-connect");if(!data.authorizationUrl)throw new Error("Google authorization URL was not returned.");location.href=data.authorizationUrl;}catch(error){say(error.message,true);button.disabled=false;}});
 $("#choose-property").addEventListener("click",async()=>{try{await api("/api/ga4-properties",{method:"POST",body:JSON.stringify({propertyId:$("#property").value})});say("Property selected. Loading report…");$("#report-section").classList.remove("hidden");await loadReport();}catch(e){say(e.message,true);}});
 $("#disconnect").addEventListener("click",async()=>{if(!confirm("Disconnect Google Analytics and delete the stored refresh token?"))return;try{await api("/api/ga4-properties",{method:"DELETE"});$("#report-section").classList.add("hidden");await loadProperties();say("Google Analytics disconnected.");}catch(e){say(e.message,true);}});
 $("#refresh").addEventListener("click",loadReport);
