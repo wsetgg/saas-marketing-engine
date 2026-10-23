@@ -1,3 +1,6 @@
+import { getAuthenticatedUser } from "../lib/auth.js";
+import { consumeRateLimit } from "../lib/usage-limit.js";
+
 const MODEL = "claude-haiku-5-5";
 const MAX_BODY_CHARS = 16000;
 
@@ -11,6 +14,50 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Use POST for research requests." });
+  }
+
+  // Research calls consume paid API credits, so require a verified account and
+  // an active subscription (or explicitly configured developer access).
+  const auth = await getAuthenticatedUser(req);
+  if (auth.error) return res.status(auth.status).json({ error: auth.error });
+
+  const devEmails = (process.env.DEV_ACCESS_EMAILS || "")
+    .split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
+  const isDeveloper = devEmails.includes(auth.user.email.toLowerCase());
+
+  if (!isDeveloper) {
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_ANON_KEY;
+    if (!url || !key) return res.status(503).json({ error: "Subscription checks are not configured." });
+    try {
+      const query = new URLSearchParams({
+        select: "status,current_period_end",
+        user_id: "eq." + auth.user.id,
+        limit: "1"
+      });
+      const check = await fetch(url.replace(/\/$/, "") + "/rest/v1/subscriptions?" + query.toString(), {
+        headers: { apikey: key, Authorization: "Bearer " + auth.accessToken },
+        signal: AbortSignal.timeout(7000)
+      });
+      if (!check.ok) return res.status(502).json({ error: "Could not verify your subscription. Please try again." });
+      const rows = await check.json();
+      const sub = rows[0];
+      const end = sub?.current_period_end ? Date.parse(sub.current_period_end) : 0;
+      const hasAccess = ["active", "trialing"].includes(sub?.status) ||
+        (sub?.status === "canceled" && end > Date.now());
+      if (!hasAccess) return res.status(403).json({ error: "An active subscription is required to use research." });
+
+      const withinLimit = await consumeRateLimit({
+        userId: auth.user.id,
+        action: "research",
+        limit: 3,
+        windowSeconds: 3600
+      });
+      if (!withinLimit) return res.status(429).json({ error: "You've reached the research limit of 3 requests per hour." });
+    } catch (error) {
+      console.error("Research access or rate limit check failed", error?.message || "unknown error");
+      return res.status(503).json({ error: "Usage protection is temporarily unavailable. Please try again later." });
+    }
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
