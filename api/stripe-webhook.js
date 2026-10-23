@@ -66,14 +66,20 @@ export default async function handler(req, res) {
         status: subscription.status,
         current_period_end: isoPeriodEnd(subscription.current_period_end)
       });
-    } else if (event.type?.startsWith("customer.subscription.") && object.id && object.metadata?.user_id) {
-      await upsertSubscription({
-        user_id: object.metadata.user_id,
-        stripe_customer_id: typeof object.customer === "string" ? object.customer : object.customer?.id,
-        stripe_subscription_id: object.id,
-        status: object.status,
-        current_period_end: isoPeriodEnd(object.current_period_end)
-      });
+    } else if (event.type?.startsWith("customer.subscription.") && object.id) {
+      // Read Stripe's current state instead of trusting an event snapshot.
+      // This reduces the chance that delayed events revert a newer subscription status.
+      const subscription = await getStripeSubscription(object.id);
+      const userId = subscription.metadata?.user_id;
+      if (userId) {
+        await upsertSubscription({
+          user_id: userId,
+          stripe_customer_id: typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id,
+          stripe_subscription_id: subscription.id,
+          status: subscription.status,
+          current_period_end: isoPeriodEnd(subscription.current_period_end)
+        });
+      }
     } else if (event.type === "invoice.payment_failed" && object.subscription) {
       const subscription = await getStripeSubscription(object.subscription);
       const userId = subscription.metadata?.user_id;
