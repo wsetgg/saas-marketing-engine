@@ -82,9 +82,10 @@ export default async function handler(req, res) {
   }
 
   if (action !== "send") return sendError(res, 400, "Unknown action.");
-  const message = clean(body.message, MAX_MESSAGE_CHARS);
-  if (!message) return sendError(res, 400, "Write a message first.");
-  if (message.length > MAX_MESSAGE_CHARS) return sendError(res, 413, "Message is too long. Keep it under 6,000 characters.");
+  const rawMessage = typeof body.message === "string" ? body.message.trim() : "";
+  if (!rawMessage) return sendError(res, 400, "Write a message first.");
+  if (rawMessage.length > MAX_MESSAGE_CHARS) return sendError(res, 413, "Message is too long. Keep it under 6,000 characters.");
+  const message = rawMessage;
 
   const usage = await checkUsage(auth.user.id);
   if (usage >= MAX_TURNS_PER_HOUR) return sendError(res, 429, "You've reached the AI Advisor limit of 30 messages per hour. Try again later.");
