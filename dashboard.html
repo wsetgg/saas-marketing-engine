@@ -45,6 +45,23 @@ button.primary:hover{background:#195640}
 .status{font-size:.82rem}
 @media(max-width:760px){.wrap{width:min(100% - 28px,1280px)}.layout{grid-template-columns:1fr;gap:12px}.main{padding-top:26px}.panel{padding:17px}#workspace aside{position:static}#ai-tools{padding:18px}#ai-tools>div:first-of-type{width:100%}#ai-tools>div:first-of-type button{flex:1}}
 
+.analytics-first{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:28px;align-items:center;margin:26px 0 24px;padding:30px 32px;background:linear-gradient(115deg,#fff 0%,#f1f8f4 100%);border:1px solid #d9e8df;border-radius:20px;box-shadow:0 8px 28px rgba(22,48,36,.045)}
+.analytics-first-copy h2{font-size:clamp(1.45rem,2.3vw,2rem);line-height:1.18;letter-spacing:-.045em;margin:9px 0 10px;color:#17283b}
+.analytics-first-copy p{max-width:590px;color:#637183;font-size:.94rem;line-height:1.7;margin:0}
+.analytics-first-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:20px}
+.analytics-cta{display:inline-flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;background:#236b54;color:#fff;text-decoration:none;font-weight:750;font-size:.88rem;box-shadow:0 3px 8px rgba(35,107,84,.16)}
+.analytics-cta:hover{background:#195640}
+.analytics-note{font-size:.74rem;color:#6d7888}
+.analytics-first-visual{min-width:0;background:#fff;border:1px solid #e0e9e4;border-radius:15px;padding:18px 18px 14px;box-shadow:0 4px 16px rgba(22,48,36,.04)}
+.analytics-mini-top,.analytics-mini-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#6d7888;font-size:.72rem}
+.analytics-mini-top{font-weight:700;color:#354457}
+.analytics-live-dot{width:8px;height:8px;background:#39a875;border-radius:50%;box-shadow:0 0 0 4px #e8f5ed}
+.analytics-mini-metric{display:flex;flex-direction:column;gap:4px;margin:18px 0 14px}
+.analytics-mini-metric span{font-size:.72rem;color:#6d7888}
+.analytics-mini-metric strong{font-size:1.05rem;letter-spacing:-.025em;color:#17283b}
+.analytics-bars{height:82px;display:flex;align-items:end;gap:9px;padding:0 2px 1px;border-bottom:1px solid #e9eef0}
+.analytics-bars i{display:block;flex:1;min-width:5px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#67b78e,#d4eadc)}
+.analytics-mini-foot{padding-top:11px;font-size:.68rem}
 .overview-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:22px 0 8px}
 .overview-card{display:flex;align-items:flex-start;gap:12px;padding:17px;background:#fff;border:1px solid var(--line);border-radius:13px;min-width:0;box-shadow:0 2px 8px rgba(22,34,50,.025)}
 .overview-icon{display:grid;place-items:center;flex:0 0 36px;height:36px;border-radius:10px;background:var(--soft);color:var(--green);font-size:1.1rem;font-weight:800}
@@ -52,8 +69,8 @@ button.primary:hover{background:#195640}
 .overview-label{font-size:.72rem;color:var(--muted);font-weight:600}
 .overview-card strong{font-size:.88rem;letter-spacing:-.02em;margin:2px 0;white-space:normal}
 .overview-card small{font-size:.72rem;color:var(--muted);line-height:1.4}
-@media(max-width:900px){.overview-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:420px){.overview-cards{gap:8px}.overview-card{padding:12px;gap:8px}.overview-icon{flex-basis:30px;height:30px}}
+@media(max-width:900px){.analytics-first{grid-template-columns:1fr;gap:22px}.analytics-first-visual{max-width:560px;width:100%}.overview-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.analytics-first{padding:22px 19px;border-radius:15px}.analytics-first-actions{align-items:flex-start;flex-direction:column;gap:10px}.analytics-mini-foot{font-size:.62rem}}@media(max-width:420px){.overview-cards{gap:8px}.overview-card{padding:12px;gap:8px}.overview-icon{flex-basis:30px;height:30px}}
 
 
 /* Growthdesk: spacious dashboard and readable content */
@@ -91,6 +108,15 @@ button.primary:hover{background:#195640}
 </style></head><body><header class="wrap"><nav class="nav"><a class="brand" href="index.html"><span class="mark">g</span>growthdesk</a><div class="nav-actions"><a class="quiet" href="acquisition.html" style="text-decoration:none">Acquisition analytics</a><span class="muted" id="email-label" style="font-size:.8rem"></span><button class="quiet" id="signout">Sign out</button></div></nav></header>
 <main class="wrap main"><div class="eyebrow">Your workspace</div><h1 id="greeting">Let's get your marketing moving.</h1><p class="muted" id="intro">Your company details and planning notes are saved to your account.</p><div class="topnote" id="access-note">Checking your account…</div>
 <section id="locked" class="panel locked" style="margin-top:22px"><h2>Unlock your workspace</h2><p>This account doesn't have an active subscription yet. Start checkout to unlock paid features, or return here after subscribing.</p><button class="primary" id="subscribe">Continue to secure checkout</button><div id="lock-status" class="status"></div></section>
+<section id="analytics-first" class="analytics-first" aria-labelledby="analytics-first-title">
+  <div class="analytics-first-copy">
+    <span class="eyebrow">Your growth at a glance</span>
+    <h2 id="analytics-first-title">Start with your acquisition data.</h2>
+    <p>See where visitors come from, which pages attract them, and what to improve next. Connect GA4 to bring your real performance data into Growthdesk.</p>
+    <div class="analytics-first-actions"><a class="analytics-cta" href="acquisition.html">Open analytics dashboard <span aria-hidden="true">↗</span></a><span class="analytics-note">Read-only connection · Your data stays yours</span></div>
+  </div>
+  <div class="analytics-first-visual" aria-hidden="true"><div class="analytics-mini-top"><span>Acquisition overview</span><span class="analytics-live-dot"></span></div><div class="analytics-mini-metric"><span>Sessions & sign-ups</span><strong>Understand what drives growth</strong></div><div class="analytics-bars"><i style="height:36%"></i><i style="height:55%"></i><i style="height:43%"></i><i style="height:72%"></i><i style="height:61%"></i><i style="height:88%"></i><i style="height:76%"></i><i style="height:100%"></i></div><div class="analytics-mini-foot"><span>Channels</span><span>Landing pages</span><span>Trends</span></div></div>
+</section>
 <section id="overview-cards" class="overview-cards" aria-label="Workspace overview">
 <div class="overview-card"><span class="overview-icon">↗</span><div><span class="overview-label">Strategy</span><strong>Marketing plan</strong><small>Plan your next 30 days</small></div></div>
 <div class="overview-card"><span class="overview-icon">✎</span><div><span class="overview-label">Content</span><strong>Content studio</strong><small>Draft campaign assets</small></div></div>
