@@ -144,7 +144,7 @@ button.primary:hover{background:#195640}
 </section></div></main>
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-const $=s=>document.querySelector(s);let supabase,session,access;
+const $=s=>document.querySelector(s);let supabase,session,access,savedItems=[];
 async function apiMe(){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);try{const r=await fetch("/api/me",{headers:{Authorization:"Bearer "+session.access_token},cache:"no-store",signal:controller.signal});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not check account access.");return d;}catch(e){if(e.name==="AbortError")throw new Error("Account check timed out. Please refresh and try again.");throw e;}finally{clearTimeout(timer);}}
 function showStatus(id,msg){$(id).textContent=msg;}
 // Safety net: never leave the dashboard on its initial account-check message forever.
@@ -203,7 +203,7 @@ if(new URLSearchParams(location.search).get("checkout")==="success"){setTimeout(
 const toolViews=["plan","content","campaign"];
 function showToolView(which){document.querySelectorAll("#tool-plan-view,#tool-content-view,#tool-campaign-view").forEach((el,i)=>el.style.display=(["plan","content","campaign"][i]===which)?"block":"none");}
 $("#tool-plan").addEventListener("click",()=>showToolView("plan"));$("#tool-content-tab").addEventListener("click",()=>showToolView("content"));$("#tool-campaign-tab").addEventListener("click",()=>showToolView("campaign"));
-let activePlan="",activeDraft="",activePlanId="",activeDraftId="",savedItems=[];
+let activePlan="",activeDraft="",activePlanId="",activeDraftId="";
 const safeText=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 async function loadGrowthItems(){const {data,error}=await supabase.from("growthdesk_items").select("id,item_type,title,content,metadata,status,due_date,created_at").eq("user_id",session.user.id).order("created_at",{ascending:false}).limit(100);if(error){["#saved-plans","#saved-content","#saved-campaigns","#saved-tasks"].forEach(id=>$(id).textContent="Saved items require the Growthdesk database migration in Supabase.");return;}savedItems=data||[];renderGrowthItems();}
 function card(item){const content=item.item_type==="task"?(item.status||"Planned")+(item.due_date?" · Due "+item.due_date:""):item.content;return '<div style="border:1px solid var(--line);border-radius:10px;padding:12px;margin:9px 0"><strong>'+safeText(item.title)+'</strong><p style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:.88rem;margin:7px 0">'+safeText(String(content||"").slice(0,800))+'</p><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="quiet" data-open-item="'+safeText(item.id)+'">Open</button>'+(item.item_type==="task"?'<button class="quiet" data-toggle-task="'+safeText(item.id)+'">'+(item.status==="Completed"?"Reopen":"Complete")+'</button>':'')+'<button class="quiet" data-delete-item="'+safeText(item.id)+'">Delete</button></div></div>';}
