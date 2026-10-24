@@ -8,7 +8,7 @@ function cookieValue(req, name) {
 }
 
 function clearCookie(res) {
-  res.setHeader("Set-Cookie", "growthdesk_ga4_nonce=; HttpOnly; Secure; SameSite=Lax; Path=/api/ga4-callback; Max-Age=0");
+  res.setHeader("Set-Cookie", "growthdesk_ga4_nonce=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0");
 }
 
 export default async function handler(req, res) {
