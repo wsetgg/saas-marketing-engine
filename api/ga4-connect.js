@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       client_id: process.env.GOOGLE_CLIENT_ID,
       redirect_uri: redirectUri(),
       response_type: "code",
-      scope: "https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/analytics.account.readonly",
+      scope: "https://www.googleapis.com/auth/analytics.readonly",
       access_type: "offline",
       prompt: "consent",
       include_granted_scopes: "true",
