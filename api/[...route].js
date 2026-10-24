@@ -1,18 +1,20 @@
-import configHandler from "../lib/routes/config.js";
-import experimentsHandler from "../lib/routes/experiments.js";
-import propertiesHandler from "../lib/routes/ga4-properties.js";
-import reportHandler from "../lib/routes/ga4-report.js";
-
-const handlers = {
-  config: configHandler,
-  experiments: experimentsHandler,
-  "ga4-properties": propertiesHandler,
-  "ga4-report": reportHandler
+const loaders = {
+  config: () => import("../lib/routes/config.js"),
+  experiments: () => import("../lib/routes/experiments.js"),
+  "ga4-properties": () => import("../lib/routes/ga4-properties.js"),
+  "ga4-report": () => import("../lib/routes/ga4-report.js")
 };
 
 export default async function handler(req, res) {
   const route = Array.isArray(req.query?.route) ? req.query.route[0] : req.query?.route;
-  const selected = handlers[String(route || "")];
-  if (!selected) return res.status(404).json({ error: "API route not found." });
-  return selected(req, res);
+  const load = loaders[String(route || "")];
+  if (!load) return res.status(404).json({ error: "API route not found." });
+
+  try {
+    const module = await load();
+    return await module.default(req, res);
+  } catch (error) {
+    console.error("API route failed to load", String(route || ""), error);
+    return res.status(500).json({ error: "The requested API route failed to initialize." });
+  }
 }
