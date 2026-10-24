@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { getAuthenticatedUser, signState, redirectUri, workspaceAccess } from "../lib/ga4.js";
 
 function setCookie(res, name, value) {
-  res.setHeader("Set-Cookie", name + "=" + encodeURIComponent(value) + "; HttpOnly; Secure; SameSite=Lax; Path=/api/ga4-callback; Max-Age=600");
+  res.setHeader("Set-Cookie", name + "=" + encodeURIComponent(value) + "; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=600");
 }
 
 export default async function handler(req, res) {
