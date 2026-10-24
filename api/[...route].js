@@ -13,7 +13,7 @@ function getRoute(req) {
   // Vercel's catch-all query can be absent depending on routing/config.
   // Fall back to the URL path so /api/config reliably resolves to "config".
   const pathname = String(req.url || "").split("?")[0];
-  const match = pathname.match(/^\\/api\\/(.+)$/);
+  const match = pathname.match(/^\/api\/(.+)$/);
   return match ? decodeURIComponent(match[1]).split("/")[0] : "";
 }
 
