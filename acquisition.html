@@ -159,7 +159,8 @@ $("#generate-insight").addEventListener("click",async()=>{
       summary:report.summary,
       channels:(report.channels||[]).slice(0,8).map(x=>({channel:x.channel,sessions:x.sessions,previousSessions:x.previousSessions,sessionsChange:x.sessionsChange,keyEvents:x.keyEvents})),
       landingPages:(report.landingPages||[]).slice(0,5),
-      dailyTrend:(report.dailyTrend||[]).map(x=>({date:x.date,sessions:x.sessions,keyEvents:x.keyEvents})),\n      measurementLimits:{zeroKeyEvents:Number(report.summary.keyEvents||0)===0,previousPeriodHasSessions:Number(report.summary.previousSessions||0)>0,trendHasMultipleDates:(report.dailyTrend||[]).length>1,revenueDataIncluded:false,eventNamesIncluded:false}
+      dailyTrend:(report.dailyTrend||[]).map(x=>({date:x.date,sessions:x.sessions,keyEvents:x.keyEvents})),
+      measurementLimits:{zeroKeyEvents:Number(report.summary.keyEvents||0)===0,previousPeriodHasSessions:Number(report.summary.previousSessions||0)>0,trendHasMultipleDates:(report.dailyTrend||[]).length>1,revenueDataIncluded:false,eventNamesIncluded:false}
     };
     const message="First assess whether this GA4 report can support reliable conversion conclusions. If it shows sessions but zero key events, prioritize checking conversion tracking and give exact setup/testing steps before recommending marketing experiments. If key events exist, explain that their meaning is unverified unless event names are provided. State that this report contains no payment or revenue data. Then give the single most useful next action. Separate observed facts from hypotheses, and never infer sign-ups, customers, or revenue from sessions alone.";
     const data=await api("/api/chat",{method:"POST",body:JSON.stringify({message,context:JSON.stringify(snapshot)})});
