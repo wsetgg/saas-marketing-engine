@@ -1,5 +1,3 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
 const style = document.createElement("style");
 style.textContent = "#growthdesk-token-meter{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;border:1px solid #dfe7e2;background:#f5faf7;color:#235b45;border-radius:9px;padding:8px 10px;font:650 .8rem/1.2 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;font-variant-numeric:tabular-nums}#growthdesk-token-icon{font-size:.95rem;line-height:1}@media(max-width:540px){#growthdesk-token-meter{padding:7px 8px;font-size:.74rem;gap:5px}}";
 document.head.append(style);
@@ -8,26 +6,21 @@ const signOut = document.querySelector("#signout");
 if (signOut && !document.querySelector("#growthdesk-token-meter")) {
   const meter = document.createElement("span");
   meter.id = "growthdesk-token-meter";
-  meter.setAttribute("role", "status");
+  meter.setAttribute("role", "group");
   meter.setAttribute("aria-label", "AI tokens remaining today");
   meter.title = "Today's AI token allowance";
   meter.innerHTML = '<span id="growthdesk-token-icon" aria-hidden="true">🪙</span><span id="growthdesk-token-remaining">—</span>';
   signOut.parentNode.insertBefore(meter, signOut);
 }
 
+let accessToken = window.__growthdeskAccessToken || "";
 let refreshInFlight = false;
 async function refreshTokenMeter() {
-  if (refreshInFlight || !document.querySelector("#growthdesk-token-meter")) return;
+  if (refreshInFlight || !accessToken || !document.querySelector("#growthdesk-token-meter")) return;
   refreshInFlight = true;
   try {
-    const configResponse = await fetch("/api/config", { cache: "no-store" });
-    const config = await configResponse.json();
-    if (!configResponse.ok || !config.supabaseUrl || !config.supabaseAnonKey) throw new Error("Configuration unavailable");
-    const supabase = createClient(config.supabaseUrl, config.supabaseAnonKey);
-    const { data, error } = await supabase.auth.getSession();
-    if (error || !data.session) return;
     const response = await fetch("/api/token-usage", {
-      headers: { Authorization: "Bearer " + data.session.access_token },
+      headers: { Authorization: "Bearer " + accessToken },
       cache: "no-store"
     });
     const usage = await response.json().catch(() => ({}));
@@ -51,7 +44,10 @@ async function refreshTokenMeter() {
     refreshInFlight = false;
   }
 }
+window.addEventListener("growthdesk:session-ready", event => {
+  accessToken = event.detail?.accessToken || window.__growthdeskAccessToken || "";
+  refreshTokenMeter();
+});
 window.addEventListener("growthdesk:tokens-updated", refreshTokenMeter);
 window.addEventListener("focus", refreshTokenMeter);
 refreshTokenMeter();
-setInterval(refreshTokenMeter, 45000);

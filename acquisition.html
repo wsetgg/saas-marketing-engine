@@ -60,6 +60,7 @@ async function init() {
     supabase = createClient(config.supabaseUrl,config.supabaseAnonKey);
     const result = await supabase.auth.getSession();
     session=result.data.session;
+    if (session) { window.__growthdeskAccessToken=session.access_token; window.dispatchEvent(new CustomEvent("growthdesk:session-ready",{detail:{accessToken:session.access_token}})); }
     if (!session) { location.href="login.html?next=acquisition.html"; return; }
     if (params.has("google")) say("Google Analytics connected. Choose the property you want to analyze.");
     if (params.has("google_error")) say(params.get("google_error"),true);
