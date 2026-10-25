@@ -59,9 +59,18 @@ export default async function handler(req, res) {
     return res.status(200).json({ conversation, messages: messages || [] });
   }
 
+  if (req.method === "DELETE") {
+    const id = clean(req.query?.id, 80);
+    if (!id) return sendError(res, 400, "Conversation ID is required.");
+    const conversation = await loadConversation(auth.user.id, id);
+    if (!conversation) return sendError(res, 404, "Conversation not found.");
+    await dbRequest("growthdesk_conversations?id=eq." + encodeURIComponent(id) + "&user_id=eq." + encodeURIComponent(auth.user.id), { method: "DELETE" });
+    return res.status(200).json({ deleted: true, id });
+  }
+
   if (req.method !== "POST") {
-    res.setHeader("Allow", "GET, POST");
-    return sendError(res, 405, "Use GET or POST.");
+    res.setHeader("Allow", "GET, POST, DELETE");
+    return sendError(res, 405, "Use GET, POST, or DELETE.");
   }
 
   let body = req.body;
