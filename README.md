@@ -76,5 +76,5 @@ Run `supabase/growthdesk-token-usage.sql` in the Supabase SQL Editor after the G
 - Customer workspace rows are protected by Supabase row-level security.
 - Developer access is an explicit server-side allowlist. Keep it limited to your own test email and remove it when no longer needed.
 - The landing page's $24/month is a proposed price; confirm final pricing and terms before launch.
-- The old research prototype endpoint remains in the repo and is not integrated into this paid workspace. Review its usage limits and access restrictions before exposing it to customers.
+- The unused legacy research endpoint and duplicate `/api/config` function were removed to reduce Vercel Hobby function usage. `/api/config` is still served by the shared API router, with the same Supabase URL validation.
 - This code has not been run against your Supabase or Stripe accounts. Deployment configuration and end-to-end testing are still required.
