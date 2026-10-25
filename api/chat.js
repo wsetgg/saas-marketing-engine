@@ -96,6 +96,8 @@ export default async function handler(req, res) {
   if (!rawMessage) return sendError(res, 400, "Write a message first.");
   if (rawMessage.length > MAX_MESSAGE_CHARS) return sendError(res, 413, "Message is too long. Keep it under 6,000 characters.");
   const message = rawMessage;
+  const privateContext = typeof body.context === "string" ? body.context.trim() : "";
+  if (privateContext.length > 12000) return sendError(res, 413, "Analytics context is too large. Refresh the report and try again.");
 
   const usage = await checkUsage(auth.user.id);
   if (usage >= MAX_TURNS_PER_HOUR) return sendError(res, 429, "You've reached the AI Advisor limit of 30 messages per hour. Try again later.");
@@ -134,6 +136,13 @@ export default async function handler(req, res) {
     "&order=created_at.desc&limit=" + MAX_HISTORY);
   const history = (previous || []).reverse().map(m => ({ role: m.role, content: m.content }));
   history.push({ role: "user", content: message });
+  const modelHistory = history.map((item, index) => {
+    if (index !== history.length - 1 || !privateContext) return item;
+    return {
+      ...item,
+      content: item.content + "\n\nPrivate GA4 analytics context for this request only. Use it to reason, but do not repeat the raw JSON to the user unless they ask for specific figures:\n" + privateContext
+    };
+  });
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return sendError(res, 503, "AI Advisor isn't configured yet. Add ANTHROPIC_API_KEY in Vercel.");
   const system = `You are Growthdesk AI Advisor: a sharp, candid growth strategist for founders of small SaaS products who handle their own marketing.
@@ -145,7 +154,7 @@ Saved business profile (some fields may be blank):
 ${JSON.stringify(profileContext)}`;
 
 
-  const reservedTokens = Math.ceil((system.length + history.reduce((sum, item) => sum + String(item.content || "").length, 0)) / 3) + 1600 + 500;
+  const reservedTokens = Math.ceil((system.length + modelHistory.reduce((sum, item) => sum + String(item.content || "").length, 0)) / 3) + 1600 + 500;
   let tokenReservation;
   let tokensFinalized = false;
   async function finishTokenReservation(actualTokens) {
@@ -168,7 +177,7 @@ ${JSON.stringify(profileContext)}`;
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: MODEL, max_tokens: 1600, system, messages: history }),
+      body: JSON.stringify({ model: MODEL, max_tokens: 1600, system, messages: modelHistory }),
       signal: AbortSignal.timeout(45000)
     });
     const payload = await response.json().catch(() => ({}));
@@ -181,7 +190,7 @@ ${JSON.stringify(profileContext)}`;
     }
     const reply = Array.isArray(payload.content) ? payload.content.filter(p => p.type === "text").map(p => p.text).join("\n").trim() : "";
     const reportedUsage = Number(payload.usage?.input_tokens || 0) + Number(payload.usage?.output_tokens || 0);
-    const estimatedActual = Math.ceil((system.length + history.reduce((sum, item) => sum + String(item.content || "").length, 0) + reply.length) / 3);
+    const estimatedActual = Math.ceil((system.length + modelHistory.reduce((sum, item) => sum + String(item.content || "").length, 0) + reply.length) / 3);
     await finishTokenReservation(reportedUsage > 0 ? reportedUsage : estimatedActual);
     if (!reply) return sendError(res, 502, "Claude returned an empty response. Try again.");
     await insertMessage(auth.user.id, conversationId, "assistant", reply);

@@ -11,7 +11,7 @@
     gtag('js', new Date());
     gtag('config', 'G-2FCM5CWXCF');
   </script>
-<style>/* Growthdesk shared UI polish */:root{--gd-bg:#f5f7f5;--gd-ink:#18251f;--gd-muted:#68766e;--gd-line:#e2e8e2;--gd-green:#286548;--gd-radius:16px}body{background:var(--gd-bg)!important;color:var(--gd-ink)!important;line-height:1.6}h1{font-size:clamp(1.9rem,3vw,2.55rem)!important;line-height:1.12!important;letter-spacing:-.035em}h2{letter-spacing:-.025em}.panel,.metric{border:1px solid var(--gd-line)!important;border-radius:var(--gd-radius)!important;box-shadow:0 8px 28px rgba(24,37,31,.045)}.panel{padding:clamp(17px,2.2vw,24px)!important}.cards{gap:14px!important;margin:22px 0!important}.metric{padding:18px!important}.metric strong{font-size:clamp(1.35rem,2vw,1.8rem)!important}table td,table th{padding:12px 10px!important;border-bottom:1px solid #edf0ed!important}#ai-insight{display:block;background:#f6faf7;border:1px solid #e0ebe2;border-left:4px solid var(--gd-green);border-radius:12px;padding:17px 18px!important;color:var(--gd-ink)!important;font-size:.97rem;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;min-height:64px}#interpretation{padding:12px 14px;background:#f7f8f6;border-radius:10px;line-height:1.7}input,select,textarea{border-radius:10px!important}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(40,101,72,.25);outline-offset:2px}@media(max-width:760px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.metric{padding:14px!important}.grid{grid-template-columns:1fr!important}}</style>
+<style>/* Growthdesk shared UI polish */:root{--gd-bg:#f5f7f5;--gd-ink:#18251f;--gd-muted:#68766e;--gd-line:#e2e8e2;--gd-green:#286548;--gd-radius:16px}body{background:var(--gd-bg)!important;color:var(--gd-ink)!important;line-height:1.6}h1{font-size:clamp(1.9rem,3vw,2.55rem)!important;line-height:1.12!important;letter-spacing:-.035em}h2{letter-spacing:-.025em}.panel,.metric{border:1px solid var(--gd-line)!important;border-radius:var(--gd-radius)!important;box-shadow:0 8px 28px rgba(24,37,31,.045)}.panel{padding:clamp(17px,2.2vw,24px)!important}.cards{gap:14px!important;margin:22px 0!important}.metric{padding:18px!important}.metric strong{font-size:clamp(1.35rem,2vw,1.8rem)!important}table td,table th{padding:12px 10px!important;border-bottom:1px solid #edf0ed!important}#ai-insight{display:block;background:#fff;border:1px solid var(--gd-line);border-radius:14px;padding:20px 22px!important;color:var(--gd-ink)!important;font-size:.96rem;line-height:1.75;white-space:normal;overflow-wrap:anywhere;min-height:64px;box-shadow:0 4px 16px rgba(24,37,31,.035)}#ai-insight strong{font-weight:750;color:var(--gd-green)}#interpretation{padding:12px 14px;background:#f7f8f6;border-radius:10px;line-height:1.7}input,select,textarea{border-radius:10px!important}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(40,101,72,.25);outline-offset:2px}@media(max-width:760px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.metric{padding:14px!important}.grid{grid-template-columns:1fr!important}}</style>
 </head><body><div class="wrap"><nav class="nav"><a class="brand" href="index.html"><span class="mark">g</span>Growthdesk</a><div class="row"><a href="dashboard.html">Workspace</a><button class="button secondary" id="signout">Sign out</button></div></nav>
 <main class="main"><p class="muted" style="margin:0">ACQUISITION WORKSPACE</p><h1>Find your next growth opportunity.</h1><p class="muted">See which channels bring visitors, what changes over time, and track the experiments you run to get more sign-ups.</p>
 <div id="notice" class="status" role="status" aria-live="polite"></div>
@@ -29,6 +29,14 @@ const $ = selector => document.querySelector(selector);
 let supabase, session, report;
 const params = new URLSearchParams(location.search);
 function say(message, error=false) { $("#notice").textContent=message; $("#notice").classList.toggle("error",error); }
+function renderMarkdown(value){
+  let source=String(value??"").replace(/\\\*\s*([^*]+?)\s*\\\*/g,"$1");
+  const escapeHtml=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  source=escapeHtml(source);
+  source=source.replace(/\*\*([\s\S]+?)\*\*/g,"<strong>$1</strong>").replace(/__([\s\S]+?)__/g,"<strong>$1</strong>");
+  source=source.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,"$1<em>$2</em>");
+  return source.replace(/\n/g,"<br>");
+}
 function safe(value) { return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])); }
 function fmt(value) { return Number(value||0).toLocaleString(); }
 function renderTrend(rows) {
@@ -128,9 +136,10 @@ $("#generate-insight").addEventListener("click",async()=>{
       landingPages:(report.landingPages||[]).slice(0,5),
       dailyTrend:(report.dailyTrend||[]).map(x=>({date:x.date,sessions:x.sessions,keyEvents:x.keyEvents}))
     };
-    const message="Analyze this real GA4 snapshot for my SaaS acquisition. Give me: (1) the single most important pattern, (2) one specific action to take next, and (3) one metric to watch to judge the result. Be concise, distinguish evidence from hypotheses, do not infer sign-ups from key events unless explicitly configured, and do not invent missing data. Snapshot JSON:\n"+JSON.stringify(snapshot);
-    const data=await api("/api/chat",{method:"POST",body:JSON.stringify({message})});
-    output.textContent=data.reply+"\n\nSaved in your AI Advisor conversation history.";
+    const message="Review my current GA4 acquisition report. Identify the single most important pattern, recommend one specific next action, and name one metric to watch. Explain what is evidence versus a hypothesis. Do not infer sign-ups from key events unless explicitly configured, and do not invent missing data.";
+    const data=await api("/api/chat",{method:"POST",body:JSON.stringify({message,context:JSON.stringify(snapshot)})});
+    output.innerHTML=renderMarkdown(data.reply);
+    const note=document.createElement("p");note.className="muted";note.style.margin="16px 0 0";note.style.fontSize=".82rem";note.textContent="Saved in your AI Advisor conversation history.";output.append(note);
   }catch(error){output.textContent=error.message||"Could not generate an AI insight.";}
   finally{button.disabled=false;}
 });
