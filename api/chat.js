@@ -154,7 +154,7 @@ Saved business profile (some fields may be blank):
 ${JSON.stringify(profileContext)}`;
 
 
-  const reservedTokens = Math.ceil((system.length + history.reduce((sum, item) => sum + String(item.content || "").length, 0)) / 3) + 1600 + 500;
+  const reservedTokens = Math.ceil((system.length + modelHistory.reduce((sum, item) => sum + String(item.content || "").length, 0)) / 3) + 1600 + 500;
   let tokenReservation;
   let tokensFinalized = false;
   async function finishTokenReservation(actualTokens) {
@@ -190,7 +190,7 @@ ${JSON.stringify(profileContext)}`;
     }
     const reply = Array.isArray(payload.content) ? payload.content.filter(p => p.type === "text").map(p => p.text).join("\n").trim() : "";
     const reportedUsage = Number(payload.usage?.input_tokens || 0) + Number(payload.usage?.output_tokens || 0);
-    const estimatedActual = Math.ceil((system.length + history.reduce((sum, item) => sum + String(item.content || "").length, 0) + reply.length) / 3);
+    const estimatedActual = Math.ceil((system.length + modelHistory.reduce((sum, item) => sum + String(item.content || "").length, 0) + reply.length) / 3);
     await finishTokenReservation(reportedUsage > 0 ? reportedUsage : estimatedActual);
     if (!reply) return sendError(res, 502, "Claude returned an empty response. Try again.");
     await insertMessage(auth.user.id, conversationId, "assistant", reply);
