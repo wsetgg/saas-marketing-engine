@@ -50,10 +50,15 @@ Add these under Project Settings → Environment Variables, then redeploy:
 - `STRIPE_WEBHOOK_SECRET` — signing secret for the webhook endpoint.
 - `APP_URL` — canonical website origin, e.g. `https://your-domain.com` (no trailing slash).
 - `DEV_ACCESS_EMAILS` — optional comma-separated email address(es) that receive developer access without paying, e.g. your own account email. This is checked server-side.
+- `GROWTHDESK_DAILY_TOKEN_LIMIT` — optional daily combined input/output token allowance; defaults to `50000`.
 
 Do not paste secret values into chat or commit them to GitHub. The publishable key is designed for browser use; the service-role key and Stripe secret/webhook keys are not.
 
-### 4. Verify before launch
+### 4. AI token allowance
+
+Run `supabase/growthdesk-token-usage.sql` in the Supabase SQL Editor after the Growthdesk chat tables have been created. The app defaults to a shared allowance of 50,000 combined input and output tokens per user per UTC day. You can override it with the optional server-only Vercel environment variable `GROWTHDESK_DAILY_TOKEN_LIMIT` (minimum 1,000). Token usage is tracked from Anthropic response usage for both AI Advisor and marketing-content generation; in-flight requests reserve estimated tokens to prevent concurrent requests from overspending the daily allowance.
+
+### 5. Verify before launch
 
 - Sign in with a test email and confirm the magic link returns to the dashboard.
 - Add your own email to `DEV_ACCESS_EMAILS` so you can test the workspace without subscribing.

@@ -1,4 +1,5 @@
 import { getAuthenticatedUser, workspaceAccess, dbRequest } from "../lib/ga4.js";
+import { reserveTokens, finalizeTokens, DAILY_TOKEN_LIMIT } from "../lib/token-usage.js";
 
 const MODEL = "claude-haiku-5-5";
 const MAX_MESSAGE_CHARS = 6000;
@@ -131,8 +132,6 @@ export default async function handler(req, res) {
   const previous = await dbRequest("growthdesk_messages?select=role,content&user_id=eq." +
     encodeURIComponent(auth.user.id) + "&conversation_id=eq." + encodeURIComponent(conversationId) +
     "&order=created_at.desc&limit=" + MAX_HISTORY);
-  await insertMessage(auth.user.id, conversationId, "user", message);
-
   const history = (previous || []).reverse().map(m => ({ role: m.role, content: m.content }));
   history.push({ role: "user", content: message });
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -145,7 +144,27 @@ Never invent traffic, sign-ups, conversion rates, research, product capabilities
 Saved business profile (some fields may be blank):
 ${JSON.stringify(profileContext)}`;
 
+
+  const reservedTokens = Math.ceil((system.length + history.reduce((sum, item) => sum + String(item.content || "").length, 0)) / 3) + 1600 + 500;
+  let tokenReservation;
+  let tokensFinalized = false;
+  async function finishTokenReservation(actualTokens) {
+    if (!tokenReservation || tokensFinalized) return;
+    await finalizeTokens(auth.user.id, tokenReservation.day, reservedTokens, actualTokens);
+    tokensFinalized = true;
+  }
   try {
+    tokenReservation = await reserveTokens(auth.user.id, reservedTokens);
+    if (!tokenReservation.allowed) {
+      return res.status(429).json({
+        error: "You've used today's AI token allowance. It resets at midnight UTC.",
+        usedTokens: tokenReservation.usedTokens,
+        remainingTokens: tokenReservation.remainingTokens,
+        dailyLimit: DAILY_TOKEN_LIMIT,
+        resetAt: tokenReservation.resetAt
+      });
+    }
+    await insertMessage(auth.user.id, conversationId, "user", message);
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
@@ -154,12 +173,16 @@ ${JSON.stringify(profileContext)}`;
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
+      await finishTokenReservation(0);
       console.error("AI Advisor request failed", response.status, payload?.error?.type || "unknown");
       if (response.status === 429) return sendError(res, 429, "Claude is busy or your API limit was reached. Try again shortly.");
       if (response.status === 401) return sendError(res, 502, "Claude rejected the API key. Check ANTHROPIC_API_KEY in Vercel.");
       return sendError(res, 502, "Claude couldn't complete that response. Try again shortly.");
     }
     const reply = Array.isArray(payload.content) ? payload.content.filter(p => p.type === "text").map(p => p.text).join("\n").trim() : "";
+    const reportedUsage = Number(payload.usage?.input_tokens || 0) + Number(payload.usage?.output_tokens || 0);
+    const estimatedActual = Math.ceil((system.length + history.reduce((sum, item) => sum + String(item.content || "").length, 0) + reply.length) / 3);
+    await finishTokenReservation(reportedUsage > 0 ? reportedUsage : estimatedActual);
     if (!reply) return sendError(res, 502, "Claude returned an empty response. Try again.");
     await insertMessage(auth.user.id, conversationId, "assistant", reply);
     await dbRequest("growthdesk_conversations?id=eq." + encodeURIComponent(conversationId) + "&user_id=eq." +
@@ -173,6 +196,9 @@ ${JSON.stringify(profileContext)}`;
     });
     return res.status(200).json({ conversation_id: conversationId, reply, model: MODEL });
   } catch (error) {
+    if (tokenReservation && !tokensFinalized) {
+      try { await finishTokenReservation(0); } catch (usageError) { console.error("Could not release AI token reservation", usageError?.name || "Error"); }
+    }
     console.error("AI Advisor failed", error?.name || "Error");
     return sendError(res, error?.name === "TimeoutError" || error?.name === "AbortError" ? 504 : 502,
       "AI Advisor couldn't finish the request. Your message may be saved; try sending it again.");
