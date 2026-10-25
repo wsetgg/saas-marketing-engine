@@ -108,6 +108,7 @@ button.primary:hover{background:#195640}
 </style>  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2FCM5CWXCF"></script>
   <script>
+    const safeText=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
@@ -304,7 +305,7 @@ const toolViews=["plan","content","campaign"];
 function showToolView(which){document.querySelectorAll("#tool-plan-view,#tool-content-view,#tool-campaign-view").forEach((el,i)=>el.style.display=(["plan","content","campaign"][i]===which)?"block":"none");}
 $("#tool-plan").addEventListener("click",()=>showToolView("plan"));$("#tool-content-tab").addEventListener("click",()=>showToolView("content"));$("#tool-campaign-tab").addEventListener("click",()=>showToolView("campaign"));
 let activePlan="",activeDraft="",activePlanId="",activeDraftId="";
-const safeText=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
 async function loadGrowthItems(){const {data,error}=await supabase.from("growthdesk_items").select("id,item_type,title,content,metadata,status,due_date,created_at").eq("user_id",session.user.id).order("created_at",{ascending:false}).limit(100);if(error){["#saved-plans","#saved-content","#saved-campaigns","#saved-tasks"].forEach(id=>$(id).textContent="Saved items require the Growthdesk database migration in Supabase.");return;}savedItems=data||[];renderGrowthItems();}
 function card(item){const content=item.item_type==="task"?(item.status||"Planned")+(item.due_date?" · Due "+item.due_date:""):item.content;return '<div style="border:1px solid var(--line);border-radius:10px;padding:12px;margin:9px 0"><strong>'+safeText(item.title)+'</strong><p style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:.88rem;margin:7px 0">'+safeText(String(content||"").slice(0,800))+'</p><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="quiet" data-open-item="'+safeText(item.id)+'">Open</button>'+(item.item_type==="task"?'<button class="quiet" data-toggle-task="'+safeText(item.id)+'">'+(item.status==="Completed"?"Reopen":"Complete")+'</button>':'')+'<button class="quiet" data-delete-item="'+safeText(item.id)+'">Delete</button></div></div>';}
 function renderGrowthItems(){const show=(id,type)=>{const list=savedItems.filter(x=>x.item_type===type);$(id).innerHTML=list.length?list.map(card).join(""):'<p class="muted">Nothing saved here yet.</p>';};show("#saved-plans","plan");show("#saved-content","content");show("#saved-campaigns","campaign");show("#saved-tasks","task");}
