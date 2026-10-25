@@ -194,6 +194,17 @@ button.primary:hover{background:#195640}
 .chat-float-top{top:20px;right:12px;transform:rotate(4deg)}
 .chat-float-bottom{bottom:18px;left:10px;transform:rotate(-3deg)}
 
+
+/* Compact AI Advisor card */
+#advisor-card .advisor-heading{padding:18px 22px 8px}
+#advisor-card .advisor-layout{gap:16px;padding:0 22px 16px}
+#advisor-card .advisor-detail{line-height:1.55}
+#advisor-card .advisor-chat-visual{min-height:220px;padding:12px}
+.chat-window{width:min(100%,300px)}
+.chat-window-head{padding:9px 11px}
+.chat-thread{padding:10px}
+.chat-composer{margin-top:8px}
+@media(max-width:680px){#advisor-card .advisor-layout{padding:0 18px 16px;gap:12px}#advisor-card .advisor-heading{padding:17px 18px 8px}}
 </style></head><body><header class="wrap"><nav class="nav"><a class="brand" href="index.html"><span class="mark">g</span>growthdesk</a><div class="nav-actions"><a class="quiet" href="acquisition.html" style="text-decoration:none">Acquisition analytics</a><a class="quiet" href="ai-advisor.html" style="text-decoration:none">AI Advisor</a><span class="muted" id="email-label" style="font-size:.8rem"></span><button class="quiet" id="signout">Sign out</button></div></nav></header>
 <main class="wrap main"><div class="eyebrow">Your workspace</div><h1 id="greeting">Let's get your marketing moving.</h1><p class="muted" id="intro">Your company details and planning notes are saved to your account.</p><div class="topnote" id="access-note">Checking your account…</div>
 <section id="locked" class="panel locked" style="margin-top:22px"><h2>Unlock your workspace</h2><p>This account doesn't have an active subscription yet. Start checkout to unlock paid features, or return here after subscribing.</p><button class="primary" id="subscribe">Continue to secure checkout</button><div id="lock-status" class="status"></div></section>
