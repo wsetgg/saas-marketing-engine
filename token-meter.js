@@ -7,6 +7,7 @@ if (signOut && !document.querySelector("#growthdesk-token-meter")) {
   const meter = document.createElement("span");
   meter.id = "growthdesk-token-meter";
   meter.setAttribute("role", "group");
+  meter.style.display = "none";
   meter.setAttribute("aria-label", "AI tokens remaining today");
   meter.title = "Today's AI token allowance";
   meter.innerHTML = '<span id="growthdesk-token-icon" aria-hidden="true">🪙</span><span id="growthdesk-token-remaining">—</span>';
@@ -27,10 +28,11 @@ async function refreshTokenMeter() {
     const value = document.querySelector("#growthdesk-token-remaining");
     const meter = document.querySelector("#growthdesk-token-meter");
     if (!response.ok || !value || !meter) {
-      if (meter) meter.title = usage.error || "Token usage is temporarily unavailable.";
+      if (meter) { meter.title = usage.error || "Token usage is temporarily unavailable."; meter.style.display = "none"; }
       return;
     }
     value.textContent = Math.max(0, Number(usage.remainingTokens) || 0).toLocaleString();
+    meter.style.display = "inline-flex";
     const reset = usage.resetAt ? new Date(usage.resetAt) : null;
     const resetLabel = reset && !Number.isNaN(reset.getTime())
       ? reset.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
