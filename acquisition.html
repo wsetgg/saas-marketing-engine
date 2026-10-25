@@ -125,9 +125,9 @@ $("#generate-insight").addEventListener("click",async()=>{
       landingPages:(report.landingPages||[]).slice(0,5),
       dailyTrend:(report.dailyTrend||[]).map(x=>({date:x.date,sessions:x.sessions,keyEvents:x.keyEvents}))
     };
-    const message="Analyze this real GA4 snapshot for my SaaS acquisition. Give me: (1) the single most important pattern, (2) one specific action to take next, and (3) one metric to watch to judge the result. Be concise, distinguish evidence from hypotheses, do not infer sign-ups from key events unless explicitly configured, and do not invent missing data. Snapshot JSON:\\n"+JSON.stringify(snapshot);
+    const message="Analyze this real GA4 snapshot for my SaaS acquisition. Give me: (1) the single most important pattern, (2) one specific action to take next, and (3) one metric to watch to judge the result. Be concise, distinguish evidence from hypotheses, do not infer sign-ups from key events unless explicitly configured, and do not invent missing data. Snapshot JSON:\n"+JSON.stringify(snapshot);
     const data=await api("/api/chat",{method:"POST",body:JSON.stringify({message})});
-    output.textContent=data.reply+"\\n\\nSaved in your AI Advisor conversation history.";
+    output.textContent=data.reply+"\n\nSaved in your AI Advisor conversation history.";
   }catch(error){output.textContent=error.message||"Could not generate an AI insight.";}
   finally{button.disabled=false;}
 });
