@@ -325,7 +325,7 @@ function renderBusinessUnderstanding(){
   feedback.hidden=confirmed||businessUnderstandingAttempts>=3;
   button.textContent=confirmed?"Regenerate understanding":businessUnderstandingAttempts>=3?"Attempts used — edit details manually":"Understand my business";
   const actions=result.querySelector(".business-profile-actions");if(actions)actions.remove();
-  if(!confirmed&&businessUnderstandingAttempts<3)result.insertAdjacentHTML("beforeend","<div class=\"business-profile-actions\"><button type=\"button\" class=\"primary\" id=\"confirm-business-understanding\">Yes, that’s correct</button><button type=\"button\" class=\"quiet\" id=\"correct-business-understanding\">No, I’ll correct it</button></div>");
+  if(!confirmed)result.insertAdjacentHTML("beforeend","<div class=\"business-profile-actions\"><button type=\"button\" class=\"primary\" id=\"confirm-business-understanding\">Yes, that’s correct</button><button type=\"button\" class=\"quiet\" id=\"correct-business-understanding\">"+(businessUnderstandingAttempts>=3?"No, I’ll edit it manually":"No, I’ll correct it")+"</button></div>");
 }
 async function requestBusinessUnderstanding(feedbackText=""){
   const company=$("#company").value.trim(),website=$("#website").value.trim(),customer=$("#customer").value.trim(),goal=$("#goal").value.trim(),notes=$("#notes").value.trim();
