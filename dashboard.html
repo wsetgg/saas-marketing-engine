@@ -107,16 +107,20 @@ button.primary:hover{background:#195640}
 @media(max-width:760px){#workspace aside{position:static!important}.plan-display{grid-template-columns:minmax(0,1fr);gap:12px}.plan-section,.plan-section:first-child,.plan-section.plan-customer,.plan-section.plan-priorities,.plan-section.plan-schedule,.plan-section.plan-metrics,.plan-section.plan-message{grid-column:1;padding:17px}.plan-section h2{font-size:1.08rem}.plan-actions>*{flex:1 1 auto}}
 
 /* Business understanding confirmation */
-.business-understanding{margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--panel, #fff)}
-.business-understanding h3{margin:0 0 6px;font-size:1rem}
-.business-understanding p{margin:5px 0 12px;color:var(--muted);font-size:.9rem}
-.business-profile-result{display:grid;gap:10px;margin-top:14px}
-.business-profile-field{padding:11px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface, #fafcfb)}
-.business-profile-field strong{display:block;font-size:.78rem;letter-spacing:.03em;text-transform:uppercase;margin-bottom:4px}
-.business-profile-field span{display:block;white-space:pre-wrap;line-height:1.5;font-size:.92rem}
-.business-profile-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.business-profile-actions button{flex:1 1 160px}
-.business-profile-feedback{margin-top:12px}
+.business-understanding{margin:20px 0 4px;padding:0;border:1px solid #d9e8df;border-radius:16px;background:linear-gradient(135deg,#fff 0%,#f7fbf8 100%);overflow:hidden;box-shadow:0 5px 18px rgba(22,48,36,.045)}
+.business-understanding>h3{margin:0;padding:20px 22px 4px;font-size:1.08rem;letter-spacing:-.025em;color:#17283b}
+.business-understanding>p{margin:0;padding:4px 22px 16px;color:#637183;font-size:.88rem;line-height:1.65}
+.business-profile-result{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;padding:0 22px 18px}
+.business-profile-field{min-width:0;padding:14px 15px;border:1px solid #e1e9e4;border-radius:12px;background:rgba(255,255,255,.9)}
+.business-profile-field:first-child{grid-column:1/-1;background:linear-gradient(110deg,#edf8f1,#fff 80%);border-color:#d5e8dc}
+.business-profile-field strong{display:block;font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:#236b54;margin-bottom:7px}
+.business-profile-field span{display:block;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;font-size:.9rem;color:#344239}
+.business-profile-actions{display:flex;gap:9px;flex-wrap:wrap;padding:16px 22px 20px;border-top:1px solid #e8eee9;background:rgba(243,248,245,.75)}
+.business-profile-actions button{flex:1 1 180px;margin:0!important;min-height:42px}
+.business-profile-actions .quiet{border-color:#d8e2dc;background:#fff}
+.business-profile-feedback{margin:0 22px 18px;padding:15px;border:1px solid #e1e9e4;border-radius:12px;background:#fff}
+#business-understanding-status{margin:12px 0;padding:11px 13px;border:1px solid #dce9e2;border-radius:10px;background:#f5faf6;color:#315d43;line-height:1.55}
+@media(max-width:640px){.business-profile-result{grid-template-columns:minmax(0,1fr);padding:0 15px 15px}.business-profile-field:first-child{grid-column:auto}.business-understanding>h3{padding:17px 15px 4px}.business-understanding>p{padding:4px 15px 14px}.business-profile-actions{padding:13px 15px 15px}.business-profile-feedback{margin:0 15px 15px}}
 </style>  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2FCM5CWXCF"></script>
   <script>
