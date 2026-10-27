@@ -276,9 +276,25 @@ async function loadSavedData(){
   // Never prefill a workspace with fictional company data. If this account already
   // has the old Northstar demo seed, leave the form blank until the owner enters real details.
   const savedWorkspace=data?.workspace_json||{};
-  const isLegacyNorthstarDemo=Boolean(data&&data.company_name==="Northstar Metrics (Demo)"&&String(savedWorkspace.notes||"").startsWith("FICTIONAL DEMO WORKSPACE — Northstar Metrics is not a real company."));
+  const savedNotes=String(savedWorkspace.notes||"");
+  const isLegacyNorthstarDemo=Boolean(data&&(
+    String(data.company_name||"").toLowerCase().includes("northstar metrics") ||
+    savedNotes.includes("FICTIONAL DEMO WORKSPACE") ||
+    String(savedWorkspace.website||"").includes("northstar-metrics.example")
+  ));
   if(!data||isLegacyNorthstarDemo){
-    if(isLegacyNorthstarDemo)showStatus("#save-status","The old Northstar demo profile was not loaded. Enter your own business details and save to replace it.");
+    // Clear every profile field explicitly so stale DOM values or a legacy demo row
+    // cannot remain visible while the owner supplies real business details.
+    $("#company").value="";
+    $("#website").value="";
+    $("#customer").value="";
+    $("#goal").value="";
+    $("#notes").value="";
+    businessUnderstandingProfile=null;
+    businessUnderstandingAttempts=0;
+    businessUnderstandingStatus="";
+    renderBusinessUnderstanding();
+    if(isLegacyNorthstarDemo)showStatus("#save-status","We found the old Northstar sample profile and did not load it. Enter your own business details and save to replace it.");
     return;
   }
 
