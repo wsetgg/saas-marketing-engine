@@ -77,7 +77,7 @@ export default async function handler(req, res) {
   const adPlatform = clean(body.adPlatform, 80);
 
   if (!["plan", "content", "improve"].includes(kind)) return res.status(400).json({ error: "Unknown generation type." });
-  if (!company || !goal) return res.status(400).json({ error: "Save a company name and marketing goal before generating." });
+  if (!company || !goal || (!website && !audience)) return res.status(400).json({ error: "Add your company name, marketing goal, and either your website or a description of your ideal customer before generating." });
   if (kind !== "plan" && !topic && !(kind === "improve" && draft) && !(kind === "content" && ["Ad creative", "Campaign kit"].includes(contentType))) return res.status(400).json({ error: "Add a topic or draft first." });
   if (kind === "improve" && !draft) return res.status(400).json({ error: "Add a draft to improve." });
 
