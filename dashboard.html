@@ -105,6 +105,18 @@ button.primary:hover{background:#195640}
 #plan-output{width:100%;max-width:none;min-height:460px!important;font:14px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace;background:#fbfcfd}
 @media(max-width:850px){.plan-section,.plan-section.plan-metrics,.plan-section.plan-message{grid-column:span 12}.plan-section{padding:20px}}
 @media(max-width:760px){#workspace aside{position:static!important}.plan-display{grid-template-columns:minmax(0,1fr);gap:12px}.plan-section,.plan-section:first-child,.plan-section.plan-customer,.plan-section.plan-priorities,.plan-section.plan-schedule,.plan-section.plan-metrics,.plan-section.plan-message{grid-column:1;padding:17px}.plan-section h2{font-size:1.08rem}.plan-actions>*{flex:1 1 auto}}
+
+/* Business understanding confirmation */
+.business-understanding{margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--panel, #fff)}
+.business-understanding h3{margin:0 0 6px;font-size:1rem}
+.business-understanding p{margin:5px 0 12px;color:var(--muted);font-size:.9rem}
+.business-profile-result{display:grid;gap:10px;margin-top:14px}
+.business-profile-field{padding:11px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface, #fafcfb)}
+.business-profile-field strong{display:block;font-size:.78rem;letter-spacing:.03em;text-transform:uppercase;margin-bottom:4px}
+.business-profile-field span{display:block;white-space:pre-wrap;line-height:1.5;font-size:.92rem}
+.business-profile-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.business-profile-actions button{flex:1 1 160px}
+.business-profile-feedback{margin-top:12px}
 </style>  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2FCM5CWXCF"></script>
   <script>
@@ -233,7 +245,7 @@ button.primary:hover{background:#195640}
 <div class="overview-card"><span class="overview-icon">◎</span><div><span class="overview-label">Campaigns</span><strong>Campaign builder</strong><small>Organize your launches</small></div></div>
 <div class="overview-card"><span class="overview-icon">✓</span><div><span class="overview-label">Execution</span><strong>Tasks & next steps</strong><small>Turn ideas into action</small></div></div>
 </section>
-<div id="workspace" class="layout" style="display:none"><div><section class="panel"><h2>Company profile</h2><p>Start with the basics. Your information is saved privately to this account.</p><label for="company">Company or product name</label><input id="company" maxlength="120" placeholder="e.g. Acme Analytics"><label for="website">Website</label><input id="website" maxlength="500" type="url" placeholder="https://example.com"><label for="customer">Who is your ideal customer?</label><textarea id="customer" maxlength="4000" placeholder="Describe the people or teams you want to reach."></textarea><label for="goal">Main marketing goal this month</label><textarea id="goal" maxlength="4000" placeholder="e.g. Get more qualified demos from small finance teams."></textarea><button class="primary" id="save">Save company profile</button><div id="save-status" class="status" role="status"></div></section>
+<div id="workspace" class="layout" style="display:none"><div><section class="panel"><h2>Company profile</h2><p>Start with the basics. Your information is saved privately to this account.</p><label for="company">Company or product name</label><input id="company" maxlength="120" placeholder="e.g. Acme Analytics"><label for="website">Website</label><input id="website" maxlength="500" type="url" placeholder="https://example.com"><label for="customer">Who is your ideal customer?</label><textarea id="customer" maxlength="4000" placeholder="Describe the people or teams you want to reach."></textarea><label for="goal">Main marketing goal this month</label><textarea id="goal" maxlength="4000" placeholder="e.g. Get more qualified demos from small finance teams."></textarea><div class="business-understanding"><h3>Help Growthdesk understand your business</h3><p>We’ll review your public website when available and combine it with the details you provide. You can correct the result before it is used for future recommendations.</p><button class="primary" id="understand-business">Understand my business</button><div id="business-understanding-status" class="status" role="status"></div><div id="business-understanding-result" hidden></div><div id="business-understanding-feedback" class="business-profile-feedback" hidden><label for="business-correction">What did Growthdesk get wrong?</label><textarea id="business-correction" maxlength="3000" placeholder="For example: We sell to accounting firms, not general small businesses. Our main product is invoice automation."></textarea><button class="primary" id="retry-business-understanding">Try again with my correction</button></div></div><button class="primary" id="save">Save company profile</button><div id="save-status" class="status" role="status"></div></section>
 <section class="panel"><h2>Marketing notes</h2><p>Keep ideas and next steps in one place while we build out the planner.</p><label for="notes">Ideas, experiments, and tasks</label><textarea id="notes" maxlength="10000" placeholder="Add an idea, campaign, or next action…"></textarea><button class="primary" id="save-notes">Save notes</button><div id="notes-status" class="status" role="status"></div></section></div>
 <aside><section class="panel"><span class="badge" id="plan-badge">Access active</span><h2 style="margin-top:15px">Your plan</h2><p id="plan-text">Your access status is up to date.</p><button class="sub-link" id="billing">Manage billing</button><div id="billing-status" class="status"></div></section><section class="panel"><h2>Next steps</h2><div class="task"><strong>1. Set your direction</strong><span>Save your audience and main goal.</span></div><div class="task"><strong>2. Capture ideas</strong><span>Keep potential content and experiments here.</span></div><div class="task"><strong>3. Build a rhythm</strong><span>We'll expand this into a fuller planner next.</span></div></section></aside>
 <section class="panel" style="margin-top:22px" id="ai-tools">
@@ -289,13 +301,58 @@ async function loadSavedData(){
   }
   if(!data)return;
   const w=data.workspace_json||{};
+  businessUnderstandingProfile=w.businessUnderstanding||null;
+  businessUnderstandingAttempts=Number(w.businessUnderstandingAttempts)||0;
+  businessUnderstandingStatus=w.businessUnderstandingStatus||"";
   $("#company").value=data.company_name||"";
   $("#website").value=w.website||"";
   $("#customer").value=w.customer||"";
   $("#goal").value=w.goal||"";
   $("#notes").value=w.notes||"";
+  renderBusinessUnderstanding();
 }
-async function saveData(statusId){showStatus(statusId,"Saving…");const company=$("#company").value.trim();const workspace_json={website:$("#website").value.trim(),customer:$("#customer").value.trim(),goal:$("#goal").value.trim(),notes:$("#notes").value.trim()};const {error}=await supabase.from("workspace_data").upsert({user_id:session.user.id,company_name:company,workspace_json,updated_at:new Date().toISOString()},{onConflict:"user_id"});showStatus(statusId,error?"Couldn't save yet. Check the Supabase table and security policies.":"Saved to your account.");}
+let businessUnderstandingProfile=null,businessUnderstandingAttempts=0,businessUnderstandingStatus="";
+function renderBusinessUnderstanding(){
+  const result=$("#business-understanding-result"),feedback=$("#business-understanding-feedback"),button=$("#understand-business");
+  if(!result||!feedback||!button)return;
+  if(!businessUnderstandingProfile){result.hidden=true;feedback.hidden=true;button.textContent="Understand my business";return;}
+  const p=businessUnderstandingProfile;
+  const fields=[["What your business does",p.summary],["Target customers",p.targetCustomers],["Problem you solve",p.problemSolved],["Market category",p.category],["Main value",p.valueProposition],["Assumptions to verify",p.assumptions]];
+  result.innerHTML="<div class=\"business-profile-result\">"+fields.filter(x=>x[1]).map(x=>"<div class=\"business-profile-field\"><strong>"+escapePlanHtml(x[0])+"</strong><span>"+escapePlanHtml(x[1])+"</span></div>").join("")+"</div>";
+  result.hidden=false;
+  const confirmed=businessUnderstandingStatus==="confirmed";
+  showStatus("#business-understanding-status",confirmed?"Confirmed — Growthdesk will use this understanding for future recommendations.":"Review this summary. Confirm it or explain what needs correcting.");
+  feedback.hidden=confirmed||businessUnderstandingAttempts>=3;
+  button.textContent=confirmed?"Regenerate understanding":businessUnderstandingAttempts>=3?"Attempts used — edit details manually":"Understand my business";
+  if(!confirmed)result.insertAdjacentHTML("beforeend","<div class=\"business-profile-actions\"><button type=\"button\" class=\"primary\" id=\"confirm-business-understanding\">Yes, that’s correct</button><button type=\"button\" class=\"quiet\" id=\"correct-business-understanding\">No, I’ll correct it</button></div>");
+  else {const actions=result.querySelector(".business-profile-actions");if(actions)actions.remove();}
+}
+async function requestBusinessUnderstanding(feedbackText=""){
+  const company=$("#company").value.trim(),website=$("#website").value.trim(),customer=$("#customer").value.trim(),goal=$("#goal").value.trim(),notes=$("#notes").value.trim();
+  if(!company){showStatus("#business-understanding-status","Enter your company or product name first.");return;}
+  if(businessUnderstandingAttempts>=3){showStatus("#business-understanding-status","You’ve used all 3 attempts. Edit the profile fields manually, then save your company profile.");return;}
+  const button=$(feedbackText?"#retry-business-understanding":"#understand-business");button.disabled=true;showStatus("#business-understanding-status","Reviewing your website and business details with Claude…");
+  try{
+    const response=await fetch("/api/business-profile",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+session.access_token},body:JSON.stringify({company,website,customer,goal,notes,feedback:feedbackText})});
+    const data=await response.json();window.dispatchEvent(new Event("growthdesk:tokens-updated"));if(!response.ok)throw new Error(data.error||"Could not understand the business.");
+    businessUnderstandingProfile=data.profile;businessUnderstandingAttempts=Number(data.attempts)||businessUnderstandingAttempts+1;businessUnderstandingStatus="needs_confirmation";
+    $("#business-correction").value="";renderBusinessUnderstanding();
+    if(data.websiteNote)showStatus("#business-understanding-status",data.websiteNote+" Review the summary below.");
+    await saveDataQuietly();
+  }catch(e){showStatus("#business-understanding-status",e.message||"Could not understand the business.");}
+  finally{button.disabled=false;}
+}
+async function saveDataQuietly(){
+  const workspace_json={website:$("#website").value.trim(),customer:$("#customer").value.trim(),goal:$("#goal").value.trim(),notes:$("#notes").value.trim(),businessUnderstanding:businessUnderstandingProfile,businessUnderstandingAttempts,businessUnderstandingStatus};
+  const {error}=await supabase.from("workspace_data").upsert({user_id:session.user.id,company_name:$("#company").value.trim(),workspace_json,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+  if(error)showStatus("#business-understanding-status","Generated, but could not save the profile. Please use Save company profile.");
+}
+
+async function saveData(statusId){showStatus(statusId,"Saving…");const company=$("#company").value.trim();const workspace_json={website:$("#website").value.trim(),customer:$("#customer").value.trim(),goal:$("#goal").value.trim(),notes:$("#notes").value.trim(),businessUnderstanding:businessUnderstandingProfile,businessUnderstandingAttempts,businessUnderstandingStatus};const {error}=await supabase.from("workspace_data").upsert({user_id:session.user.id,company_name:company,workspace_json,updated_at:new Date().toISOString()},{onConflict:"user_id"});showStatus(statusId,error?"Couldn’t save yet. Check the Supabase table and security policies.":"Saved to your account.");}
+$("#understand-business").addEventListener("click",()=>requestBusinessUnderstanding());
+document.addEventListener("click",async event=>{if(event.target.closest("#confirm-business-understanding")){businessUnderstandingStatus="confirmed";renderBusinessUnderstanding();await saveDataQuietly();showStatus("#business-understanding-status","Confirmed and saved. Growthdesk will use this profile for future recommendations.");}if(event.target.closest("#correct-business-understanding")){if(businessUnderstandingAttempts>=3){showStatus("#business-understanding-status","You’ve used all 3 attempts. Edit the company profile fields manually.");return;}$("#business-understanding-feedback").hidden=false;$("#business-correction").focus();}});
+$("#retry-business-understanding").addEventListener("click",()=>{const correction=$("#business-correction").value.trim();if(!correction){showStatus("#business-understanding-status","Tell Growthdesk what was wrong so it can improve the next attempt.");return;}requestBusinessUnderstanding(correction);});
+["#company","#website","#customer","#goal","#notes"].forEach(id=>$(id).addEventListener("input",()=>{if(businessUnderstandingStatus==="confirmed"){businessUnderstandingStatus="needs_confirmation";renderBusinessUnderstanding();showStatus("#business-understanding-status","Your business details changed. Review and confirm the understanding again.");}}));
 $("#save").addEventListener("click",()=>saveData("#save-status"));$("#save-notes").addEventListener("click",()=>saveData("#notes-status"));
 $("#signout").addEventListener("click",async()=>{if(supabase)await supabase.auth.signOut();location.href="index.html";});
 $("#subscribe").addEventListener("click",async()=>{const b=$("#subscribe");b.disabled=true;showStatus("#lock-status","Opening secure checkout…");try{const r=await fetch("/api/stripe-checkout",{method:"POST",headers:{Authorization:"Bearer "+session.access_token}});const d=await r.json();if(!r.ok)throw new Error(d.error||"Checkout isn't configured yet.");location.href=d.url;}catch(e){showStatus("#lock-status",e.message||"Could not start checkout.");b.disabled=false;}});
