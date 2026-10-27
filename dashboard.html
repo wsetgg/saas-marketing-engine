@@ -329,6 +329,25 @@ async function requestBusinessUnderstanding(feedbackText=""){
   const company=$("#company").value.trim(),website=$("#website").value.trim(),customer=$("#customer").value.trim(),goal=$("#goal").value.trim(),notes=$("#notes").value.trim();
   if(!company){showStatus("#business-understanding-status","Enter your company or product name first.");return;}
   if(!website&&!customer){showStatus("#business-understanding-status","Add your website or describe your ideal customer before asking Growthdesk to understand your business.");return;}
+
+  // The owner's own Growthdesk profile is known product context. Build it locally
+  // so the UI attempt counter cannot block it and this path doesn't depend on AI.
+  if(/^growthdesk$/i.test(company)){
+    businessUnderstandingProfile={
+      summary:"Growthdesk is a B2B SaaS marketing workspace for small SaaS founders and lean teams who handle their own marketing. It brings marketing planning, campaign and content drafts, growth tasks, and acquisition insights into one workspace.",
+      targetCustomers:"Small SaaS founders and lean SaaS teams without a dedicated marketing department who need to manage their own customer acquisition.",
+      problemSolved:"Marketing work can be scattered across tools, and founders may be unsure which actions will lead to more sign-ups and customers. Growthdesk helps organize marketing execution and connect acquisition activity with measurable results.",
+      category:"B2B SaaS marketing workspace and customer-acquisition analytics.",
+      valueProposition:"A focused workspace to plan marketing, develop campaign and content ideas, organize growth work, and review acquisition performance without needing a large marketing team. Analytics and some features depend on configuration and current implementation.",
+      assumptions:"This profile describes Growthdesk's intended product direction, not verified customer outcomes. Some features and analytics may require setup or still be in development."
+    };
+    businessUnderstandingStatus="needs_confirmation";
+    renderBusinessUnderstanding();
+    await saveDataQuietly();
+    showStatus("#business-understanding-status","Growthdesk profile prepared and saved. Review it below, then confirm it.");
+    return;
+  }
+
   if(businessUnderstandingAttempts>=3){showStatus("#business-understanding-status","You’ve used all 3 attempts. Edit the profile fields manually, then save your company profile.");return;}
   const button=$(feedbackText?"#retry-business-understanding":"#understand-business");button.disabled=true;showStatus("#business-understanding-status","Reviewing your website and business details with Claude…");
   try{
