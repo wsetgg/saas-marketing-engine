@@ -2,6 +2,7 @@
   "name": "saas-marketing-engine",
   "version": "0.2.0",
   "private": true,
+  "type": "module",
   "description": "Growthdesk marketing workspace with Supabase auth and Stripe subscriptions.",
   "scripts": {
     "dev": "vercel dev"
