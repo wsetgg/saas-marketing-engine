@@ -2,12 +2,14 @@ import configHandler from "../lib/routes/config.js";
 import experimentsHandler from "../lib/routes/experiments.js";
 import ga4PropertiesHandler from "../lib/routes/ga4-properties.js";
 import ga4ReportHandler from "../lib/routes/ga4-report.js";
+import businessProfileHandler from "../lib/routes/business-profile.js";
 
 const handlers = {
   config: configHandler,
   experiments: experimentsHandler,
   "ga4-properties": ga4PropertiesHandler,
-  "ga4-report": ga4ReportHandler
+  "ga4-report": ga4ReportHandler,
+  "business-profile": businessProfileHandler
 };
 
 function getRoute(req) {
