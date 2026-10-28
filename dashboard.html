@@ -621,9 +621,10 @@ async function loadSavedData(){
 }
 
 function renderBusinessUnderstanding(){
-  const result=$("#business-understanding-result"),feedback=$("#business-understanding-feedback"),button=$("#understand-business");
+  const result=$("#business-understanding-result"),feedback=$("#business-understanding-feedback"),button=$("#understand-business"),section=$("#company-profile");
   if(!result||!feedback||!button)return;
-  if(!businessUnderstandingProfile){result.hidden=true;feedback.hidden=true;button.textContent="Understand my business";return;}
+  if(!businessUnderstandingProfile){section?.classList.remove("has-business-overview");section?.classList.remove("profile-editing");result.hidden=true;feedback.hidden=true;button.textContent="Understand my business";return;}
+  section?.classList.add("has-business-overview");
   const p=businessUnderstandingProfile;
   const fields=[["What your company does",p.summary],["Ideal customers",p.targetCustomers],["Problem you solve",p.problemSolved],["Category",p.category],["Why it matters",p.valueProposition],["Things to verify",p.assumptions]];
   result.innerHTML="<div class=\"business-profile-result-heading\"><div><span class=\"business-profile-result-kicker\">BUSINESS SNAPSHOT</span><h4>Your business, clearly defined</h4><p>Check that this reflects what you actually offer.</p></div><span class=\"snapshot-check\" aria-hidden=\"true\">✦</span></div><div class=\"business-profile-result\">"+fields.filter(x=>x[1]).map((x,i)=>"<div class=\"business-profile-field"+(i===0?" business-profile-summary":"")+"\"><strong>"+escapePlanHtml(x[0])+"</strong><span>"+escapePlanHtml(x[1])+"</span></div>").join("")+"</div>";
