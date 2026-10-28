@@ -156,6 +156,51 @@ button.primary:hover{background:#195640}
 .business-profile-feedback{margin:0 22px 18px;padding:15px;border:1px solid #e1e9e4;border-radius:12px;background:#fff}
 #business-understanding-status{margin:12px 0;padding:11px 13px;border:1px solid #dce9e2;border-radius:10px;background:#f5faf6;color:#315d43;line-height:1.55}
 @media(max-width:640px){.business-profile-result{grid-template-columns:minmax(0,1fr);padding:0 15px 15px}.business-profile-field:first-child{grid-column:auto}.business-understanding>h3{padding:17px 15px 4px}.business-understanding>p{padding:4px 15px 14px}.business-profile-actions{padding:13px 15px 15px}.business-profile-feedback{margin:0 15px 15px}}
+
+/* Final company-profile visual pass: override legacy component styles consistently */
+#company-profile{background:#fff;border-color:#dfe6ec;border-radius:18px;padding:28px;box-shadow:0 8px 28px rgba(22,34,50,.035)}
+.company-profile-heading{padding-bottom:19px;border-bottom:1px solid #edf0f3;margin-bottom:18px}
+.company-profile-heading .eyebrow{font-size:.67rem;letter-spacing:.13em;color:#32785d}
+.company-profile-heading h2{font-size:1.42rem;line-height:1.2;color:#17283b}
+.company-profile-heading p{font-size:.88rem;color:#697687}
+.profile-step{background:#f3f8f5;border-color:#dbe9e0;border-radius:999px;padding:7px 11px}
+#company-profile>label{margin-top:18px;font-size:.77rem;font-weight:750;letter-spacing:.005em;color:#344457}
+#company-profile>input,#company-profile>textarea{background:#fbfcfd;border:1px solid #dfe5eb;border-radius:10px;padding:12px 14px;color:#263547}
+#company-profile>input:hover,#company-profile>textarea:hover{border-color:#c7d5ce}
+#company-profile>input:focus,#company-profile>textarea:focus{border-color:#6fa88b;box-shadow:0 0 0 3px rgba(50,120,93,.1)}
+.business-understanding{margin-top:25px!important;padding:21px!important;border:1px solid #dce8e1!important;border-radius:15px!important;background:#f7faf8!important;box-shadow:none!important;overflow:visible}
+.business-understanding-heading{margin-bottom:17px}
+.understanding-icon{width:38px;height:38px;background:#e3f1e9;border-radius:12px;color:#267251}
+.business-understanding-heading h3{font-size:1.02rem!important;line-height:1.35;margin-bottom:6px!important}
+.business-understanding-heading p{font-size:.83rem!important;color:#657486!important;line-height:1.65!important}
+#understand-business{border-radius:10px!important;min-height:44px;background:#246b51!important;border-color:#246b51!important;box-shadow:none!important}
+#understand-business:hover{background:#1c5b43!important}
+#business-understanding-status{font-size:.8rem!important;line-height:1.5!important}
+#business-understanding-result{margin-top:4px}
+.business-profile-result-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0 5px;border-top:1px solid #e6ece8;margin-top:17px}
+.business-profile-result-heading h4{margin:4px 0 3px;font-size:1.08rem;line-height:1.35;letter-spacing:-.03em;color:#17283b}
+.business-profile-result-heading p{margin:0;color:#6d7888;font-size:.8rem;line-height:1.5}
+.business-profile-result-kicker{font-size:.64rem;letter-spacing:.13em;font-weight:800;color:#32785d}
+.snapshot-check{display:grid;place-items:center;flex:none;width:38px;height:38px;border:1px solid #dcebe1;border-radius:12px;background:#eaf5ee;color:#287653;font-size:1rem}
+.business-profile-result{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:11px!important;padding:12px 0 0!important}
+.business-profile-field{min-width:0;padding:16px!important;border:1px solid #e4e9ee!important;border-radius:12px!important;background:#fff!important;box-shadow:none!important}
+.business-profile-field strong{display:block;font-size:.66rem!important;letter-spacing:.085em!important;text-transform:uppercase;color:#758294!important;margin-bottom:8px!important}
+.business-profile-field span{display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.86rem!important;line-height:1.72!important;color:#344457!important}
+.business-profile-field.business-profile-summary{grid-column:1/-1;background:linear-gradient(115deg,#f0f8f3,#fff 78%)!important;border-color:#d5e7db!important;box-shadow:inset 3px 0 #4b9a73!important}
+.business-profile-field.business-profile-summary strong{color:#267251!important}
+.business-profile-actions{display:flex;gap:10px;flex-wrap:wrap;padding:16px 0 0!important;margin-top:15px!important;border-top:1px solid #e4ebe6!important;background:transparent!important}
+.business-profile-actions button{flex:1 1 180px;min-height:43px;margin:0!important;border-radius:10px!important}
+.business-profile-actions .quiet{background:#fff!important;border:1px solid #dce4e9!important;color:#344457!important}
+#company-profile>#save{min-height:44px;border-radius:10px;margin-top:22px;padding:11px 19px}
+@media(max-width:640px){
+#company-profile{padding:19px!important}
+.company-profile-heading h2{font-size:1.22rem}
+.business-understanding{padding:16px!important}
+.business-profile-result-heading{padding-top:16px}
+.business-profile-result{grid-template-columns:minmax(0,1fr)!important}
+.business-profile-field.business-profile-summary{grid-column:auto}
+.business-profile-actions button{flex:1 1 100%}
+}
 </style>  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2FCM5CWXCF"></script>
   <script>
@@ -351,7 +396,7 @@ function renderBusinessUnderstanding(){
   if(!businessUnderstandingProfile){result.hidden=true;feedback.hidden=true;button.textContent="Understand my business";return;}
   const p=businessUnderstandingProfile;
   const fields=[["What your company does",p.summary],["Ideal customers",p.targetCustomers],["Problem you solve",p.problemSolved],["Category",p.category],["Why it matters",p.valueProposition],["Things to verify",p.assumptions]];
-  result.innerHTML="<div class=\"business-profile-result\">"+fields.filter(x=>x[1]).map((x,i)=>"<div class=\"business-profile-field"+(i===0?" business-profile-summary":"")+"\"><strong>"+escapePlanHtml(x[0])+"</strong><span>"+escapePlanHtml(x[1])+"</span></div>").join("")+"</div>";
+  result.innerHTML="<div class=\"business-profile-result-heading\"><div><span class=\"business-profile-result-kicker\">BUSINESS SNAPSHOT</span><h4>Your business, clearly defined</h4><p>Check that this reflects what you actually offer.</p></div><span class=\"snapshot-check\" aria-hidden=\"true\">✦</span></div><div class=\"business-profile-result\">"+fields.filter(x=>x[1]).map((x,i)=>"<div class=\"business-profile-field"+(i===0?" business-profile-summary":"")+"\"><strong>"+escapePlanHtml(x[0])+"</strong><span>"+escapePlanHtml(x[1])+"</span></div>").join("")+"</div>";
   result.hidden=false;
   const confirmed=businessUnderstandingStatus==="confirmed";
   showStatus("#business-understanding-status",confirmed?"Confirmed — Growthdesk will use this understanding for future recommendations.":"Review this summary. Confirm it or explain what needs correcting.");
