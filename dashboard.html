@@ -380,6 +380,57 @@ button.primary:hover{background:#195640}
   .business-profile-field:first-child,.business-profile-field.business-profile-summary{grid-column:auto!important}
 }
 
+
+
+/* Compact company overview: show the AI summary first after setup */
+#company-profile{padding:18px!important}
+#company-profile.has-business-overview:not(.profile-editing)>.company-profile-heading,
+#company-profile.has-business-overview:not(.profile-editing)>label,
+#company-profile.has-business-overview:not(.profile-editing)>input,
+#company-profile.has-business-overview:not(.profile-editing)>textarea,
+#company-profile.has-business-overview:not(.profile-editing)>#save,
+#company-profile.has-business-overview:not(.profile-editing)>.business-understanding>.business-understanding-heading,
+#company-profile.has-business-overview:not(.profile-editing)>.business-understanding>#understand-business,
+#company-profile.has-business-overview:not(.profile-editing)>.business-understanding>#business-understanding-status{
+  display:none!important;
+}
+#company-profile.has-business-overview:not(.profile-editing)>.business-understanding{
+  margin:0!important;padding:0!important;border:0!important;background:transparent!important;
+}
+#company-profile.has-business-overview:not(.profile-editing) #business-understanding-result{margin:0!important}
+#company-profile.has-business-overview:not(.profile-editing) .business-profile-result-heading{
+  padding:0 0 12px!important;margin:0 0 10px!important;border:0!important;
+}
+#company-profile.has-business-overview:not(.profile-editing) .business-profile-result-heading h4{
+  margin:3px 0!important;font-size:1.05rem!important;
+}
+#company-profile.has-business-overview:not(.profile-editing) .business-profile-result-heading p{display:none!important}
+#company-profile.has-business-overview:not(.profile-editing) .business-profile-result{
+  gap:8px!important;padding:0!important;
+}
+#company-profile.has-business-overview:not(.profile-editing) .business-profile-field{
+  padding:11px 12px!important;border-radius:9px!important;
+}
+#company-profile.has-business-overview:not(.profile-editing) .business-profile-field span{
+  font-size:.82rem!important;line-height:1.55!important;
+}
+#company-profile.has-business-overview:not(.profile-editing) .business-profile-field.business-profile-summary{
+  background:#f8fafb!important;border-left:3px solid var(--green)!important;
+}
+#company-profile.has-business-overview:not(.profile-editing) .business-profile-actions{
+  padding:10px 0 0!important;margin-top:10px!important;border-top:1px solid var(--line)!important;
+}
+#company-profile.has-business-overview:not(.profile-editing) .business-profile-actions button{
+  flex:0 1 auto!important;min-height:36px!important;padding:8px 12px!important;font-size:.78rem!important;
+}
+#company-profile.has-business-overview:not(.profile-editing) .business-profile-actions #confirm-business-understanding{display:none!important}
+#company-profile.has-business-overview:not(.profile-editing) .business-profile-feedback{margin:10px 0 0!important}
+@media(max-width:640px){
+  #company-profile{padding:15px!important}
+  #company-profile.has-business-overview:not(.profile-editing) .business-profile-result{grid-template-columns:minmax(0,1fr)!important}
+  #company-profile.has-business-overview:not(.profile-editing) .business-profile-field.business-profile-summary{grid-column:auto!important}
+}
+
 </style>  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2FCM5CWXCF"></script>
   <script>
@@ -570,9 +621,10 @@ async function loadSavedData(){
 }
 
 function renderBusinessUnderstanding(){
-  const result=$("#business-understanding-result"),feedback=$("#business-understanding-feedback"),button=$("#understand-business");
+  const result=$("#business-understanding-result"),feedback=$("#business-understanding-feedback"),button=$("#understand-business"),section=$("#company-profile");
   if(!result||!feedback||!button)return;
-  if(!businessUnderstandingProfile){result.hidden=true;feedback.hidden=true;button.textContent="Understand my business";return;}
+  if(!businessUnderstandingProfile){section?.classList.remove("has-business-overview");section?.classList.remove("profile-editing");result.hidden=true;feedback.hidden=true;button.textContent="Understand my business";return;}
+  section?.classList.add("has-business-overview");
   const p=businessUnderstandingProfile;
   const fields=[["What your company does",p.summary],["Ideal customers",p.targetCustomers],["Problem you solve",p.problemSolved],["Category",p.category],["Why it matters",p.valueProposition],["Things to verify",p.assumptions]];
   result.innerHTML="<div class=\"business-profile-result-heading\"><div><span class=\"business-profile-result-kicker\">BUSINESS SNAPSHOT</span><h4>Your business, clearly defined</h4><p>Check that this reflects what you actually offer.</p></div><span class=\"snapshot-check\" aria-hidden=\"true\">✦</span></div><div class=\"business-profile-result\">"+fields.filter(x=>x[1]).map((x,i)=>"<div class=\"business-profile-field"+(i===0?" business-profile-summary":"")+"\"><strong>"+escapePlanHtml(x[0])+"</strong><span>"+escapePlanHtml(x[1])+"</span></div>").join("")+"</div>";
@@ -582,7 +634,7 @@ function renderBusinessUnderstanding(){
   feedback.hidden=confirmed||businessUnderstandingAttempts>=3;
   button.textContent=confirmed?"Regenerate understanding":businessUnderstandingAttempts>=3?"Attempts used — edit details manually":"Understand my business";
   const actions=result.querySelector(".business-profile-actions");if(actions)actions.remove();
-  if(!confirmed)result.insertAdjacentHTML("beforeend","<div class=\"business-profile-actions\"><button type=\"button\" class=\"primary\" id=\"confirm-business-understanding\">Yes, that’s correct</button><button type=\"button\" class=\"quiet\" id=\"correct-business-understanding\">"+(businessUnderstandingAttempts>=3?"No, I’ll edit it manually":"No, I’ll correct it")+"</button></div>");
+  result.insertAdjacentHTML("beforeend","<div class=\"business-profile-actions\">"+(!confirmed?"<button type=\"button\" class=\"primary\" id=\"confirm-business-understanding\">Yes, that’s correct</button>":"")+"<button type=\"button\" class=\"quiet\" id=\"edit-company-details\">Edit company details</button>"+(!confirmed?"<button type=\"button\" class=\"quiet\" id=\"correct-business-understanding\">"+(businessUnderstandingAttempts>=3?"No, I’ll edit it manually":"No, I’ll correct it")+"</button>":"")+"</div>");
 }
 async function requestBusinessUnderstanding(feedbackText=""){
   const company=$("#company").value.trim(),website=$("#website").value.trim(),customer=$("#customer").value.trim(),goal=$("#goal").value.trim(),notes=$("#notes").value.trim();
@@ -627,7 +679,7 @@ async function saveDataQuietly(){
 
 async function saveData(statusId){showStatus(statusId,"Saving…");const company=$("#company").value.trim();const workspace_json={website:$("#website").value.trim(),customer:$("#customer").value.trim(),goal:$("#goal").value.trim(),notes:$("#notes").value.trim(),businessUnderstanding:businessUnderstandingProfile,businessUnderstandingAttempts,businessUnderstandingStatus};const {error}=await supabase.from("workspace_data").upsert({user_id:session.user.id,company_name:company,workspace_json,updated_at:new Date().toISOString()},{onConflict:"user_id"});showStatus(statusId,error?"Couldn’t save yet. Check the Supabase table and security policies.":"Saved to your account.");}
 $("#understand-business").addEventListener("click",()=>requestBusinessUnderstanding());
-document.addEventListener("click",async event=>{if(event.target.closest("#confirm-business-understanding")){businessUnderstandingStatus="confirmed";renderBusinessUnderstanding();await saveDataQuietly();showStatus("#business-understanding-status","Confirmed and saved. Growthdesk will use this profile for future recommendations.");}if(event.target.closest("#correct-business-understanding")){if(businessUnderstandingAttempts>=3){showStatus("#business-understanding-status","You’ve used all 3 attempts. Edit the company profile fields manually.");return;}$("#business-understanding-feedback").hidden=false;$("#business-correction").focus();}});
+document.addEventListener("click",async event=>{if(event.target.closest("#edit-company-details")){$("#company-profile").classList.add("profile-editing");return;}if(event.target.closest("#confirm-business-understanding")){businessUnderstandingStatus="confirmed";renderBusinessUnderstanding();await saveDataQuietly();showStatus("#business-understanding-status","Confirmed and saved. Growthdesk will use this profile for future recommendations.");}if(event.target.closest("#correct-business-understanding")){if(businessUnderstandingAttempts>=3){showStatus("#business-understanding-status","You’ve used all 3 attempts. Edit the company profile fields manually.");return;}$("#business-understanding-feedback").hidden=false;$("#business-correction").focus();}});
 $("#retry-business-understanding").addEventListener("click",()=>{const correction=$("#business-correction").value.trim();if(!correction){showStatus("#business-understanding-status","Tell Growthdesk what was wrong so it can improve the next attempt.");return;}requestBusinessUnderstanding(correction);});
 ["#company","#website","#customer","#goal","#notes"].forEach(id=>$(id).addEventListener("input",()=>{if(businessUnderstandingStatus==="confirmed"){businessUnderstandingStatus="needs_confirmation";renderBusinessUnderstanding();showStatus("#business-understanding-status","Your business details changed. Review and confirm the understanding again.");}}));
 $("#save").addEventListener("click",()=>saveData("#save-status"));$("#save-notes").addEventListener("click",()=>saveData("#notes-status"));
