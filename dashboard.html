@@ -106,6 +106,41 @@ button.primary:hover{background:#195640}
 @media(max-width:850px){.plan-section,.plan-section.plan-metrics,.plan-section.plan-message{grid-column:span 12}.plan-section{padding:20px}}
 @media(max-width:760px){#workspace aside{position:static!important}.plan-display{grid-template-columns:minmax(0,1fr);gap:12px}.plan-section,.plan-section:first-child,.plan-section.plan-customer,.plan-section.plan-priorities,.plan-section.plan-schedule,.plan-section.plan-metrics,.plan-section.plan-message{grid-column:1;padding:17px}.plan-section h2{font-size:1.08rem}.plan-actions>*{flex:1 1 auto}}
 
+/* Company profile + business snapshot refresh */
+#company-profile{padding:27px}
+.company-profile-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:22px}
+.company-profile-heading .eyebrow{display:block;margin-bottom:7px}
+.company-profile-heading h2{font-size:1.35rem;letter-spacing:-.04em;margin:0 0 7px}
+.company-profile-heading p{max-width:560px;margin:0;font-size:.9rem;line-height:1.65}
+.profile-step{flex:none;padding:7px 10px;border:1px solid #dfe8e3;border-radius:9px;background:#f6faf7;color:#236b54;font-size:.73rem;font-weight:800;letter-spacing:.04em}
+.profile-step span{color:#829187;font-weight:650}
+#company-profile>label{margin-top:17px;margin-bottom:7px;color:#344457;font-size:.8rem}
+#company-profile>input,#company-profile>textarea{background:#fbfcfd;border-color:#dce4e9;border-radius:10px;padding:12px 14px}
+#company-profile>input{min-height:46px}
+#company-profile>textarea{min-height:86px}
+#company-profile>input::placeholder,#company-profile>textarea::placeholder{color:#9aa5b2}
+.business-understanding{margin:24px 0 0;padding:21px;border:1px solid #dce8e2;border-radius:15px;background:linear-gradient(135deg,#f5faf7 0%,#fff 72%);box-shadow:none}
+.business-understanding-heading{display:flex;align-items:flex-start;gap:13px;margin-bottom:16px}
+.understanding-icon{display:grid;place-items:center;flex:none;width:37px;height:37px;border-radius:11px;background:#e3f2e9;color:#236b54;font-size:1.15rem}
+.business-understanding>div>h3,.business-understanding-heading h3{margin:0 0 5px;padding:0;color:#17283b;font-size:1rem;letter-spacing:-.025em}
+.business-understanding>div>p,.business-understanding-heading p{margin:0;padding:0;color:#687687;font-size:.84rem;line-height:1.65}
+#understand-business{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:43px;margin:0;border-radius:10px;font-weight:750}
+#understand-business span{font-size:1.05rem;transition:transform .15s}
+#understand-business:hover span{transform:translateX(3px)}
+#business-understanding-status:empty{display:none}
+#business-understanding-status{margin:12px 0 0;padding:0;border:0;background:transparent;color:#3c6a50;font-size:.82rem}
+.business-profile-result{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:17px 0 0}
+.business-profile-field{padding:16px;border:1px solid #e4eaf0;border-radius:12px;background:#fff}
+.business-profile-field strong{font-size:.68rem;letter-spacing:.075em;color:#718092;margin-bottom:8px}
+.business-profile-field span{font-size:.88rem;line-height:1.7;color:#344457}
+.business-profile-field.business-profile-summary{grid-column:1/-1;background:#fff;border-color:#d8e8df;box-shadow:inset 3px 0 #4a9975}
+.business-profile-field.business-profile-summary strong{color:#236b54}
+.business-profile-actions{gap:10px;padding:15px 0 0;margin-top:16px;border-top:1px solid #e7ece8;background:transparent}
+.business-profile-actions button{flex:1 1 180px;min-height:43px}
+#company-profile>#save{margin-top:20px;min-height:43px;padding-inline:18px}
+#company-profile>#save-status:empty{display:none}
+@media(max-width:640px){#company-profile{padding:19px}.company-profile-heading{gap:10px}.company-profile-heading h2{font-size:1.2rem}.profile-step{font-size:.65rem;padding:6px 8px}.business-understanding{padding:16px}.business-profile-result{grid-template-columns:1fr;padding-top:14px}.business-profile-field.business-profile-summary{grid-column:auto}.business-profile-actions{padding-top:13px}.business-profile-actions button{flex:1 1 100%}}
+
 /* Business understanding confirmation */
 .business-understanding{margin:20px 0 4px;padding:0;border:1px solid #d9e8df;border-radius:16px;background:linear-gradient(135deg,#fff 0%,#f7fbf8 100%);overflow:hidden;box-shadow:0 5px 18px rgba(22,48,36,.045)}
 .business-understanding>h3{margin:0;padding:20px 22px 4px;font-size:1.08rem;letter-spacing:-.025em;color:#17283b}
@@ -249,7 +284,7 @@ button.primary:hover{background:#195640}
 <div class="overview-card"><span class="overview-icon">◎</span><div><span class="overview-label">Campaigns</span><strong>Campaign builder</strong><small>Organize your launches</small></div></div>
 <div class="overview-card"><span class="overview-icon">✓</span><div><span class="overview-label">Execution</span><strong>Tasks & next steps</strong><small>Turn ideas into action</small></div></div>
 </section>
-<div id="workspace" class="layout" style="display:none"><div><section class="panel"><h2>Company profile</h2><p>Enter your own business details first. Growthdesk will not assume a sample company or invent a profile for you.</p><label for="company">Company or product name (required for AI)</label><input id="company" maxlength="120" placeholder="e.g. Acme Analytics"><label for="website">Website (or describe your ideal customer below)</label><input id="website" maxlength="500" type="url" placeholder="https://example.com"><label for="customer">Who is your ideal customer? (required if no website)</label><textarea id="customer" maxlength="4000" placeholder="Describe the people or teams you want to reach."></textarea><label for="goal">Main marketing goal this month (required for AI)</label><textarea id="goal" maxlength="4000" placeholder="e.g. Get more qualified demos from small finance teams."></textarea><div class="business-understanding"><h3>Help Growthdesk understand your business</h3><p>We’ll review your public website when available and combine it with the details you provide. You can correct the result before it is used for future recommendations.</p><button class="primary" id="understand-business">Understand my business</button><div id="business-understanding-status" class="status" role="status"></div><div id="business-understanding-result" hidden></div><div id="business-understanding-feedback" class="business-profile-feedback" hidden><label for="business-correction">What did Growthdesk get wrong?</label><textarea id="business-correction" maxlength="3000" placeholder="For example: We sell to accounting firms, not general small businesses. Our main product is invoice automation."></textarea><button class="primary" id="retry-business-understanding">Try again with my correction</button></div></div><button class="primary" id="save">Save company profile</button><div id="save-status" class="status" role="status"></div></section>
+<div id="workspace" class="layout" style="display:none"><div><section class="panel" id="company-profile"><div class="company-profile-heading"><div><span class="eyebrow">Start here</span><h2>Tell us about your company</h2><p>Give Growthdesk the basics so your plans and recommendations fit your business.</p></div><span class="profile-step">01 <span> / PROFILE</span></span></div><label for="company">Company or product name (required for AI)</label><input id="company" maxlength="120" placeholder="e.g. Acme Analytics"><label for="website">Website (or describe your ideal customer below)</label><input id="website" maxlength="500" type="url" placeholder="https://example.com"><label for="customer">Who is your ideal customer? (required if no website)</label><textarea id="customer" maxlength="4000" placeholder="Describe the people or teams you want to reach."></textarea><label for="goal">Main marketing goal this month (required for AI)</label><textarea id="goal" maxlength="4000" placeholder="e.g. Get more qualified demos from small finance teams."></textarea><div class="business-understanding"><div class="business-understanding-heading"><span class="understanding-icon">✦</span><div><h3>Build your business snapshot</h3><p>We’ll turn your details into a clear summary of your product, audience, and value. Review it before Growthdesk uses it.</p></div></div><button class="primary" id="understand-business">Create business snapshot <span aria-hidden="true">→</span></button><div id="business-understanding-status" class="status" role="status"></div><div id="business-understanding-result" hidden></div><div id="business-understanding-feedback" class="business-profile-feedback" hidden><label for="business-correction">What did Growthdesk get wrong?</label><textarea id="business-correction" maxlength="3000" placeholder="For example: We sell to accounting firms, not general small businesses. Our main product is invoice automation."></textarea><button class="primary" id="retry-business-understanding">Try again with my correction</button></div></div><button class="primary" id="save">Save company profile</button><div id="save-status" class="status" role="status"></div></section>
 <section class="panel"><h2>Marketing notes</h2><p>Keep ideas and next steps in one place while we build out the planner.</p><label for="notes">Ideas, experiments, and tasks</label><textarea id="notes" maxlength="10000" placeholder="Add an idea, campaign, or next action…"></textarea><button class="primary" id="save-notes">Save notes</button><div id="notes-status" class="status" role="status"></div></section></div>
 <aside><section class="panel"><span class="badge" id="plan-badge">Access active</span><h2 style="margin-top:15px">Your plan</h2><p id="plan-text">Your access status is up to date.</p><button class="sub-link" id="billing">Manage billing</button><div id="billing-status" class="status"></div></section><section class="panel"><h2>Next steps</h2><div class="task"><strong>1. Set your direction</strong><span>Save your audience and main goal.</span></div><div class="task"><strong>2. Capture ideas</strong><span>Keep potential content and experiments here.</span></div><div class="task"><strong>3. Build a rhythm</strong><span>We'll expand this into a fuller planner next.</span></div></section></aside>
 <section class="panel" style="margin-top:22px" id="ai-tools">
@@ -315,8 +350,8 @@ function renderBusinessUnderstanding(){
   if(!result||!feedback||!button)return;
   if(!businessUnderstandingProfile){result.hidden=true;feedback.hidden=true;button.textContent="Understand my business";return;}
   const p=businessUnderstandingProfile;
-  const fields=[["What your business does",p.summary],["Target customers",p.targetCustomers],["Problem you solve",p.problemSolved],["Market category",p.category],["Main value",p.valueProposition],["Assumptions to verify",p.assumptions]];
-  result.innerHTML="<div class=\"business-profile-result\">"+fields.filter(x=>x[1]).map(x=>"<div class=\"business-profile-field\"><strong>"+escapePlanHtml(x[0])+"</strong><span>"+escapePlanHtml(x[1])+"</span></div>").join("")+"</div>";
+  const fields=[["What your company does",p.summary],["Ideal customers",p.targetCustomers],["Problem you solve",p.problemSolved],["Category",p.category],["Why it matters",p.valueProposition],["Things to verify",p.assumptions]];
+  result.innerHTML="<div class=\"business-profile-result\">"+fields.filter(x=>x[1]).map((x,i)=>"<div class=\"business-profile-field"+(i===0?" business-profile-summary":"")+"\"><strong>"+escapePlanHtml(x[0])+"</strong><span>"+escapePlanHtml(x[1])+"</span></div>").join("")+"</div>";
   result.hidden=false;
   const confirmed=businessUnderstandingStatus==="confirmed";
   showStatus("#business-understanding-status",confirmed?"Confirmed — Growthdesk will use this understanding for future recommendations.":"Review this summary. Confirm it or explain what needs correcting.");
